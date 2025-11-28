@@ -1,0 +1,14 @@
+@page "/logout"
+@inject frontendblazor.Services.TokenStorage TokenStorage
+@inject NavigationManager Nav
+
+<div class="p-4 text-gray-700">Đang đăng xuất...</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await TokenStorage.ClearAsync();
+
+        Nav.NavigateTo("/");
+    }
+}
