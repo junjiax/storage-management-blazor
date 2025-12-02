@@ -30,4 +30,25 @@ builder.Services.AddScoped<ApiClient>(sp =>
 });
 builder.Services.AddScoped<AuthApi>();
 
+// PRODUCT API DI
+
+// CATEGORY API DI
+
+// SUPPLIER API DI
+
+// INVENTORY API DI
+
+// USER API DI
+
+// ORDER API DI
+
+// ORDER ITEM API DI
+
+// PROMOTION API DI
+
+// PAYMENT API DI
+
+// CUSTOMER API DI
+
+
 await builder.Build().RunAsync();
