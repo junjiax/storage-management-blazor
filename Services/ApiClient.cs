@@ -104,7 +104,7 @@ public sealed class ApiClient
         return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
 
-     // GET BY ID
+    // GET BY ID
     public async Task<TResponse?> GetByIdAsync<TResponse>(string path, int id, CancellationToken ct = default)
     {
         return await GetAsync<TResponse>($"{path}/{id}", ct);
@@ -133,35 +133,35 @@ public sealed class ApiClient
         return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
 
-        // DELETE
+    // DELETE
     public async Task<TResponse?> DeleteAsync<TResponse>(string path, int id, CancellationToken ct = default)
-{
-    using var req = new HttpRequestMessage(HttpMethod.Delete, $"{path}/{id}");
-
-    // Lấy token
-    var token = await tokenStorage.GetTokenAsync();
-    if (IsJwtExpired(token))
     {
-        await HandleUnauthorizedAsync();
-        return default;
+        using var req = new HttpRequestMessage(HttpMethod.Delete, $"{path}/{id}");
+
+        // Lấy token
+        var token = await tokenStorage.GetTokenAsync();
+        if (IsJwtExpired(token))
+        {
+            await HandleUnauthorizedAsync();
+            return default;
+        }
+
+        await AttachAuthAsync(req);
+
+        // Gửi request
+        using var res = await httpClient.SendAsync(req, ct);
+
+        // Handle Unauthorized
+        if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+            res.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            await HandleUnauthorizedAsync();
+            return default;
+        }
+
+        // Parse JSON từ response sang TResponse
+        return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
-
-    await AttachAuthAsync(req);
-
-    // Gửi request
-    using var res = await httpClient.SendAsync(req, ct);
-
-    // Handle Unauthorized
-    if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
-        res.StatusCode == System.Net.HttpStatusCode.Forbidden)
-    {
-        await HandleUnauthorizedAsync();
-        return default;
-    }
-
-    // Parse JSON từ response sang TResponse
-    return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
-}
 }
 
 
