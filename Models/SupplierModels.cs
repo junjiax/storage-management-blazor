@@ -1,8 +1,11 @@
-﻿using System;
+﻿using System.Text.Json.Serialization;
 
-public class Class1
-{
-	public Class1()
-	{
-	}
-}
+namespace frontendblazor.Models;
+public sealed record SupplierRequest(
+	[property: JsonPropertyName("name")] string Name,
+	[property: JsonPropertyName("phone")] string? Phone,
+	[property: JsonPropertyName("email")] string? Email,
+	[property: JsonPropertyName("address")] string? Address
+);
+
+public sealed record SupplierResponse(int SupplierId, string Name,string? Phone, string? Email,string? Address);

@@ -103,6 +103,65 @@ public sealed class ApiClient
         }
         return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
+
+     // GET BY ID
+    public async Task<TResponse?> GetByIdAsync<TResponse>(string path, int id, CancellationToken ct = default)
+    {
+        return await GetAsync<TResponse>($"{path}/{id}", ct);
+    }
+
+    // PUT
+    public async Task<TResponse?> PutAsync<TRequest, TResponse>(string path, TRequest body, CancellationToken ct = default)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Put, path)
+        {
+            Content = JsonContent.Create(body)
+        };
+        var token = await tokenStorage.GetTokenAsync();
+        if (IsJwtExpired(token))
+        {
+            await HandleUnauthorizedAsync();
+            return default;
+        }
+        await AttachAuthAsync(req);
+        using var res = await httpClient.SendAsync(req, ct);
+        if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized || res.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            await HandleUnauthorizedAsync();
+            return default;
+        }
+        return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
+    }
+
+        // DELETE
+    public async Task<TResponse?> DeleteAsync<TResponse>(string path, int id, CancellationToken ct = default)
+{
+    using var req = new HttpRequestMessage(HttpMethod.Delete, $"{path}/{id}");
+
+    // Lấy token
+    var token = await tokenStorage.GetTokenAsync();
+    if (IsJwtExpired(token))
+    {
+        await HandleUnauthorizedAsync();
+        return default;
+    }
+
+    await AttachAuthAsync(req);
+
+    // Gửi request
+    using var res = await httpClient.SendAsync(req, ct);
+
+    // Handle Unauthorized
+    if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized ||
+        res.StatusCode == System.Net.HttpStatusCode.Forbidden)
+    {
+        await HandleUnauthorizedAsync();
+        return default;
+    }
+
+    // Parse JSON từ response sang TResponse
+    return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
+}
 }
 
 
