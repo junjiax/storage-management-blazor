@@ -16,10 +16,13 @@ public sealed class SupplierApi
 
     public Task<ApiResponse<SupplierResponse>?> UpdateAsync(SupplierRequest request,int id ,CancellationToken ct = default)
         => apiClient.PutAsync<SupplierRequest, ApiResponse<SupplierResponse>>($"Supplier/{id}", request, ct);
-	public Task<ApiResponse<SupplierResponse>?> GetAllAsync(CancellationToken ct = default)
-	=> apiClient.GetAsync<ApiResponse<SupplierResponse>>("Supplier", ct);
-	public Task<ApiResponse<SupplierResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
-	=> apiClient.GetByIdAsync<ApiResponse<SupplierResponse>>("Supplier", id, ct);
-	public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
-    => apiClient.DeleteAsync<ApiResponse<bool>>("Supplier", id, ct);
+	
+    public Task<ApiResponse<SupplierResponse>?> GetAllAsync(CancellationToken ct = default)
+	    => apiClient.GetAsync<ApiResponse<SupplierResponse>>("Supplier", ct);
+	
+    public Task<ApiResponse<SupplierResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
+	    => apiClient.GetByIdAsync<ApiResponse<SupplierResponse>>("Supplier", id, ct);
+	
+    public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
+        => apiClient.DeleteAsync<ApiResponse<bool>>("Supplier", id, ct);
 }

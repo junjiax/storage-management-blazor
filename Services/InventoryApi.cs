@@ -15,16 +15,17 @@ public sealed class InventoryApi
         => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
 
     public Task<ApiResponse<InventoryResponse>?> UpdateAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
+        => apiClient.PutAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
 
-    public Task<ApiResponse<InventoryResponse>?> DeleteAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
+    public Task<ApiResponse<ProductResponse>?> GetAllAsync(CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<ProductResponse>>("Supplier", ct);
 
-    public Task<ApiResponse<InventoryResponse>?> GetListAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
+    public Task<ApiResponse<InventoryResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
+        => apiClient.GetByIdAsync<ApiResponse<InventoryResponse>>("Supplier", id, ct);
 
-    public Task<ApiResponse<InventoryResponse>?> GetByIdAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/register", request, ct);
+    public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
+        => apiClient.DeleteAsync<ApiResponse<bool>>("Supplier", id, ct);
+
 }
 
 
