@@ -1,7 +1,46 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@using frontendblazor.Components.Home
+<PageTitle>Trang chủ</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
+    <HeroBanner ImageUrl="images/BannarBig.png" />
 
-Welcome to your new app.
+    <ServiceHighlights />
+
+    <CategoryGrid Title="Danh mục phổ biến" Items="@popularCategories" />
+
+    <ProductGrid Title="Sản phẩm phổ biến" Items="@popularProducts" PageSize="10" />
+
+    <Testimonials />
+
+</div>
+
+@code {
+    private readonly IEnumerable<CategoryItemVm> popularCategories = new List<CategoryItemVm>
+{
+new("Trái cây tươi", "icon-192.png"),
+new("Rau củ tươi", "icon-192.png"),
+new("Thịt & Cá", "icon-192.png"),
+new("Đồ ăn vặt", "icon-192.png"),
+new("Đồ uống", "icon-192.png"),
+new("Sức khỏe & Làm đẹp", "icon-192.png")
+};
+
+    private readonly IEnumerable<ProductItemVm> popularProducts = new List<ProductItemVm>
+{
+new("Táo xanh", "icon-192.png", 149000m, 189000m, true, "Giảm 12%"),
+new("Xà lách tươi", "icon-192.png", 65000m, null, true, null),
+new("Cà tím", "icon-192.png", 82500m),
+new("Bắp ngô", "icon-192.png", 120000m),
+new("Súp lơ", "icon-192.png", 115000m, 130000m, true, "Giảm giá"),
+new("Dưa leo", "icon-192.png", 92000m),
+new("Ớt xanh", "icon-192.png", 74000m),
+new("Khoai tây", "icon-192.png", 50000m),
+new("Ớt chuông", "icon-192.png", 98000m, 105000m, true, "Giảm 5%"),
+new("Bí ngòi", "icon-192.png", 84000m),
+new("Bí ngòi", "icon-192.png", 84000m),
+new("Bí ngòi", "icon-192.png", 84000m),
+
+};
+}

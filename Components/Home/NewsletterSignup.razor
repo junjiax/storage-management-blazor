@@ -1,0 +1,36 @@
+@namespace frontendblazor.Components.Home
+@inherits ComponentBase
+<section class="bg-slate-50 border rounded-xl p-4 md:p-6 reveal-on-scroll">
+	<div class="flex flex-col md:flex-row md:items-center gap-4">
+		<div class="flex-1">
+			<h3 class="text-base md:text-lg font-semibold">Đăng ký nhận bản tin</h3>
+			<p class="text-slate-600 text-sm">Nhận tin khuyến mãi và sản phẩm mới mỗi tuần.</p>
+		</div>
+		<div class="flex-1">
+			<form class="flex rounded-md overflow-hidden border bg-white" @onsubmit="HandleSubmit">
+				<input class="flex-1 px-3 text-sm outline-none" placeholder="Địa chỉ email của bạn" @bind="email" />
+				<button type="submit" class="px-4 md:px-6 bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700">
+					Đăng ký
+				</button>
+			</form>
+			@if (submitted)
+			{
+				<div class="text-xs text-emerald-700 mt-1">Cảm ơn bạn đã đăng ký!</div>
+			}
+		</div>
+	</div>
+</section>
+
+@code {
+	private string email = string.Empty;
+	private bool submitted;
+
+	private Task HandleSubmit()
+	{
+		submitted = true;
+		StateHasChanged();
+		return Task.CompletedTask;
+	}
+}
+
+

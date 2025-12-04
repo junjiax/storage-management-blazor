@@ -1,0 +1,88 @@
+@namespace frontendblazor.Components.Home
+@inherits ComponentBase
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 reveal-on-scroll">
+    <!-- BIG BANNER: text overlay on image -->
+    <div class="relative md:col-span-2 rounded-2xl overflow-hidden h-[260px] md:h-[460px]">
+        <!-- Background image -->
+        <img src="@ImageUrl" alt="banner" class="absolute inset-0 w-full h-full object-cover" />
+
+        <!-- Gradient để chữ dễ đọc -->
+        <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/80 via-emerald-900/40 to-transparent"></div>
+
+        <!-- Text -->
+        <div class="relative z-10 h-full flex items-center px-6 md:px-10">
+            <div class="max-w-md text-white space-y-4">
+                <p class="uppercase tracking-wide text-white/80 text-xs">@SubTitle</p>
+
+                <h1 class="text-3xl md:text-4xl font-bold leading-snug">
+                    @Title
+                </h1>
+
+                @if (!string.IsNullOrWhiteSpace(HighlightText))
+                {
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full bg-white/90 text-emerald-700 px-3 py-1 text-sm font-semibold">
+                        <span>@HighlightText</span>
+                    </div>
+                }
+
+                <p class="text-sm text-emerald-50">
+                    @Description
+                </p>
+
+                <a href="@CtaUrl"
+                    class="inline-flex items-center gap-2 bg-white text-emerald-700 px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-white/90 transition">
+                    @CtaText
+                    <span>→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT SMALL BANNERS -->
+    <div class="space-y-4">
+        <!-- Card 1 -->
+        <div class="relative h-[220px] rounded-2xl overflow-hidden bg-emerald-50 flex items-center">
+            <!-- Background image bên phải -->
+            <img src="/images/BG.png" alt="banner small 2"
+                class="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none select-none" />
+
+            <div class="relative z-10 px-5 space-y-1 max-w-[60%]">
+                <p class="text-[11px] uppercase tracking-wide text-emerald-600">Khuyến mãi mùa hè</p>
+                <h3 class="text-emerald-900 font-semibold text-lg">Giảm 75%</h3>
+                <p class="text-emerald-800 text-xs">Chỉ áp dụng Rau &amp; Trái cây</p>
+                <a class="text-emerald-700 text-sm font-medium inline-flex items-center gap-1" href="#">
+                    Mua ngay <span>→</span>
+                </a>
+            </div>
+        </div>
+
+
+        <div class="relative h-[220px] rounded-2xl overflow-hidden bg-emerald-900 text-white flex items-center">
+            <!-- Background image phủ lá + mờ -->
+            <img src="/images/BG.png" alt="banner small 2"
+                class="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none select-none" />
+
+            <div class="relative z-10 px-5 space-y-1 max-w-[70%]">
+                <p class="text-[11px] uppercase tracking-wide text-emerald-200">Ưu đãi tốt nhất</p>
+                <h3 class="font-semibold text-lg">Sản phẩm đặc biệt</h3>
+                <p class="text-sm text-white/80">Ưu đãi trong tháng</p>
+                <a class="text-emerald-200 text-sm font-medium inline-flex items-center gap-1" href="#">
+                    Mua ngay <span>→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Thực phẩm hữu cơ tươi ngon";
+    [Parameter] public string SubTitle { get; set; } = "Tươi & Khỏe";
+    [Parameter] public string HighlightText { get; set; } = "Giảm đến 30%";
+    [Parameter] public string Description { get; set; } = "Miễn phí vận chuyển cho mọi đơn hàng.";
+    [Parameter] public string CtaText { get; set; } = "Mua ngay";
+    [Parameter] public string CtaUrl { get; set; } = "#";
+    // ảnh đặt ở wwwroot/images/BannarBig.png
+    [Parameter] public string ImageUrl { get; set; } = "/images/BannarBig.png";
+}

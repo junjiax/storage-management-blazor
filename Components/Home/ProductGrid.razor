@@ -1,0 +1,56 @@
+@namespace frontendblazor.Components.Home
+@using frontendblazor.Components.Home
+<div class="reveal-on-scroll">
+    <SectionHeader Title="@Title" ViewAllUrl="@ViewAllUrl" ActionText="@ActionText" />
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
+        @foreach (var p in PagedItems)
+        {
+            <ProductCard Item="p" />
+        }
+    </div>
+    @if (EnablePagination && TotalItems > PageSize)
+    {
+        <Pagination CurrentPage="@currentPage" PageSize="@PageSize" TotalItems="@TotalItems"
+            OnPageChanged="HandlePageChanged" />
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Sản phẩm phổ biến";
+    [Parameter] public string? ViewAllUrl { get; set; } = "#";
+    [Parameter] public string ActionText { get; set; } = "Xem tất cả";
+    [Parameter] public IEnumerable<ProductItemVm> Items { get; set; } = Array.Empty<ProductItemVm>();
+
+    // Pagination
+    [Parameter] public bool EnablePagination { get; set; } = true;
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int TotalItems { get; set; } = 0;
+
+    private int currentPage = 1;
+
+    private IReadOnlyList<ProductItemVm> PagedItems
+    => Items.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+
+    protected override void OnParametersSet()
+    {
+        if (TotalItems <= 0)
+        {
+            TotalItems = Items?.Count() ?? 0;
+        }
+        var totalPages = Math.Max(1, (int)Math.Ceiling((double)TotalItems / Math.Max(1, PageSize)));
+        if (currentPage > totalPages)
+        {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1)
+        {
+            currentPage = 1;
+        }
+    }
+
+    private void HandlePageChanged(int page)
+    {
+        currentPage = page;
+        StateHasChanged();
+    }
+}

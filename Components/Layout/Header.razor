@@ -1,0 +1,146 @@
+@namespace frontendblazor.Components.Layout
+
+<header class="border-b bg-white shadow-sm">
+    <!-- Top bar -->
+    <div class="bg-slate-50 text-slate-600 text-xs">
+        <div class="max-w-7xl mx-auto h-9 flex items-center justify-between px-4 md:px-6">
+            <!-- Left: location -->
+            <div class="hidden md:flex items-center gap-2">
+                <span class="inline-flex items-center gap-1">
+                    <span class="text-emerald-600 text-sm">📍</span>
+                    <span>Cửa hàng: Lincoln – 344, Illinois, Chicago, USA</span>
+                </span>
+            </div>
+
+            <!-- Right: language / currency / auth -->
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-3">
+                    <button class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>Eng</span>
+                        <span class="text-[10px]">▼</span>
+                    </button>
+                    <span class="text-slate-300">|</span>
+                    <button class="inline-flex items-center gap-1 hover:text-slate-900 transition">
+                        <span>USD</span>
+                        <span class="text-[10px]">▼</span>
+                    </button>
+                </div>
+
+                <div class="hidden md:flex items-center gap-1 text-xs">
+                    <a href="/login" class="hover:text-slate-900 transition">Đăng nhập</a>
+                    <span>/</span>
+                    <a href="/register" class="hover:text-slate-900 transition">Đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Middle: logo + search + icons -->
+    <div class="bg-white">
+        <div class="max-w-7xl mx-auto h-16 md:h-20 flex items-center gap-4 px-4 md:px-6">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 text-xl md:text-2xl font-semibold text-emerald-700">
+                <span class="text-2xl">🌿</span>
+                <span>Ecobazar</span>
+            </a>
+
+            <!-- Search -->
+            <div class="hidden md:flex flex-1">
+                <div class="w-[500px] flex rounded-md border border-slate-200 bg-slate-50/70 overflow-hidden">
+                    <input
+                        class="flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-emerald-500 h-[40px]"
+                        placeholder="Tìm kiếm sản phẩm, danh mục..." />
+                    <button class="px-5 text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition">
+                        Tìm kiếm
+                    </button>
+                </div>
+            </div>
+
+            <!-- Icons -->
+            <div class="ml-auto flex items-center gap-5">
+                <!-- Wishlist -->
+                <a href="#" class="relative text-slate-700 hover:text-emerald-700 transition" title="Yêu thích">
+                    <svg width="30" height="26" viewBox="0 0 30 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14.587 24.5498C-12.0791 9.81093 6.58751 -6.18907 14.587 3.92834C22.5875 -6.18907 41.2542 9.81093 14.587 24.5498Z"
+                            stroke="#1A1A1A" stroke-width="1.5" />
+                    </svg>
+
+                    <span
+                        class="absolute -top-2 -right-2 h-4 min-w-[16px] px-[3px] flex items-center justify-center rounded-full bg-emerald-600 text-[10px] font-semibold text-white">
+                        2
+                    </span>
+                </a>
+
+                <!-- Cart -->
+                <div class="flex items-center gap-2">
+                    <div
+                        class="h-9 w-9 flex items-center justify-center rounded-full bg-emerald-50 text-lg text-emerald-700">
+                        <svg width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M7.83333 10.6667H3.58333L0.75 26.25H26.25L23.4167 10.6667H19.1667M7.83333 10.6667V6.41667C7.83333 3.28705 10.3704 0.75 13.5 0.75C16.6296 0.75 19.1667 3.28705 19.1667 6.41667V10.6667M7.83333 10.6667H19.1667M7.83333 10.6667V14.9167M19.1667 10.6667V14.9167"
+                                stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+
+                    </div>
+                    <div class="text-xs md:text-sm leading-tight">
+                        <div class="text-slate-500">Giỏ hàng</div>
+                        <div class="font-semibold text-slate-900">$57.00</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="bg-slate-900 text-white">
+        <div class="max-w-7xl mx-auto h-12 flex items-center justify-between px-4 md:px-6">
+            <ul class="flex items-center gap-4 md:gap-6 text-xs md:text-sm font-medium">
+                <li>
+                    <NavLink href="/" Match="NavLinkMatch.All" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Trang chủ
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/shop" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Cửa hàng
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/pages" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Trang
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/blog" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Blog
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/about" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Về chúng tôi
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/contact" class="transition-colors hover:text-emerald-400"
+                        ActiveClass="text-emerald-400">
+                        Liên hệ
+                    </NavLink>
+                </li>
+            </ul>
+
+            <div class="hidden md:flex items-center gap-2 text-xs md:text-sm justify-center">
+                <span class="text-emerald-400 text-lg">📞</span>
+                <div class="flex flex-col leading-tight">
+                    <span class="text-white">Đường dây nóng 24/7</span>
+                    <span class="font-semibold">(219) 555-0114</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>

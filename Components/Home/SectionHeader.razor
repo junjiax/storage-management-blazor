@@ -1,0 +1,18 @@
+@namespace frontendblazor.Components.Home
+@inherits ComponentBase
+@if (!string.IsNullOrWhiteSpace(Title))
+{
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">@Title</h2>
+        @if (!string.IsNullOrWhiteSpace(ViewAllUrl))
+        {
+            <a href="@ViewAllUrl" class="text-green-600 hover:text-green-700 text-sm font-medium">@ActionText</a>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? ViewAllUrl { get; set; }
+    [Parameter] public string ActionText { get; set; } = "Xem tất cả";
+}
