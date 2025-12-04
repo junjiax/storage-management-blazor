@@ -1,2 +1,108 @@
-﻿@page "/admin/payments"
-<h3>Quản lý thanh toán</h3>
+﻿@page "/admin/categories"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject CategoryApi CategoryApi
+@inject NavigationManager Nav
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý danh mục</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-black px-4 py-2 rounded-lg shadow transition">
+            + Thêm danh mục
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm danh mục..."
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+        <button class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
+            Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tên danh mục</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (categories != null && categories.Count > 0)
+                {
+                    @foreach (var item in categories)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.CategoryId</td>
+                            <td class="px-4 py-3 font-medium">@item.CategoryName</td>
+                        
+
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+
+                                <!-- Button Edit -->
+                                <button
+                                    class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow">
+                                    Sửa
+                                </button>
+
+                                <!-- Button Delete -->
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-6 text-gray-500">
+                            Không có danh mục nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    private List<CategoryResponse> categories = new List<CategoryResponse>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        var CategoryApiReponse = await CategoryApi.GetAllAsync();
+        
+        if(CategoryApiReponse != null && CategoryApiReponse.Data != null)
+        {
+            categories = CategoryApiReponse.Data;
+            foreach (var item in categories)
+            {
+                Console.WriteLine($"Category: {item}");
+            }
+            Console.WriteLine($"categories loaded: {categories.Count}");
+        }
+        else
+        {
+            Console.WriteLine("No category found or error in loading.");
+        }
+    }
+}

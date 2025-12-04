@@ -7,10 +7,22 @@ public sealed record InventoryRequest(
     [property: JsonPropertyName("quantity")] string Quantity
 );
 
-public sealed record InventoryResponse(
-    int InventoryId,
-    int ProductId,
-    string ProductName,
-    int Quantity,
-    DateTime UpdatedAt
-);
+public sealed record InventoryResponse
+{
+    [JsonPropertyName("inventoryId")]
+    public int InventoryId { get; init; }
+
+    [JsonPropertyName("productId")]
+    public int ProductId { get; init; }
+
+    [JsonPropertyName("productName")]
+    public string ProductName { get; init; }
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; init; }
+
+    [JsonPropertyName("updatedAt")]
+    public DateTime UpdatedAt { get; init; }
+}
+
+

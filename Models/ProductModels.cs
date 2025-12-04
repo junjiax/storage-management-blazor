@@ -11,12 +11,39 @@ public sealed record ProductRequest(
     [property: JsonPropertyName("unit")] string Unit
 );
 
-public sealed record ProductResponse(
-    int ProductId,
-    string CategoryId,
-    string SupplierId,
-    string ProductName,
-    string Barcode,
-    string Unit
-);
+public sealed record ProductResponse
+{
+    [JsonPropertyName("productId")]
+    public int ProductId { get; init; }
 
+    [JsonPropertyName("categoryId")]
+    public int CategoryId { get; init; }
+
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; init; }
+
+    [JsonPropertyName("supplierId")]
+    public int SupplierId { get; init; }
+
+    [JsonPropertyName("supplierName")]
+    public string SupplierName { get; init; }
+
+    [JsonPropertyName("productName")]
+    public string ProductName { get; init; }
+
+    [JsonPropertyName("barcode")]
+    public string Barcode { get; init; }
+
+    [JsonPropertyName("price")]
+    public decimal Price { get; init; }
+
+    [JsonPropertyName("unit")]
+    public string Unit { get; init; }
+
+    [JsonPropertyName("productImg")]
+    public string ProductImg { get; init; }
+
+    [JsonPropertyName("createdAt")]
+    public DateTime CreatedAt { get; init; }
+
+};

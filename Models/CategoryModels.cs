@@ -7,5 +7,13 @@ public sealed record CategoryRequest(
     [property: JsonPropertyName("password")] string Password
 );
 
-public sealed record CategoryResponse(string Token, string Username, string FullName, string Role, int Id);
+public sealed record CategoryResponse{
+    
+    [JsonPropertyName("categoryId")]
+    public int CategoryId { get; init; }
+    
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; init; }
+
+}
 

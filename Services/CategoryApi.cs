@@ -12,19 +12,19 @@ public sealed class CategoryApi
     }
 
     public Task<ApiResponse<CategoryResponse>?> AddAsync(CategoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<CategoryRequest, ApiResponse<CategoryResponse>>("auth/login", request, ct);
+        => apiClient.PostAsync<CategoryRequest, ApiResponse<CategoryResponse>>("category", request, ct);
 
     public Task<ApiResponse<CategoryResponse>?> UpdateAsync(CategoryRequest request, CancellationToken ct = default)
-        => apiClient.PutAsync<CategoryRequest, ApiResponse<CategoryResponse>>("auth/login", request, ct);
+        => apiClient.PutAsync<CategoryRequest, ApiResponse<CategoryResponse>>("category", request, ct);
 
-    public Task<ApiResponse<CategoryResponse>?> GetAllAsync(CancellationToken ct = default)
-        => apiClient.GetAsync<ApiResponse<CategoryResponse>>("Supplier", ct);
+    public Task<ApiResponse<List<CategoryResponse>>> GetAllAsync(CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<List<CategoryResponse>>>("category", ct);
 
     public Task<ApiResponse<CategoryResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
-        => apiClient.GetByIdAsync<ApiResponse<CategoryResponse>>("Supplier", id, ct);
+        => apiClient.GetByIdAsync<ApiResponse<CategoryResponse>>("category", id, ct);
 
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
-        => apiClient.DeleteAsync<ApiResponse<bool>>("Supplier", id, ct);
+        => apiClient.DeleteAsync<ApiResponse<bool>>("category", id, ct);
 }
 
 

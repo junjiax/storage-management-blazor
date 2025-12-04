@@ -1,2 +1,147 @@
 ﻿@page "/admin/products"
-<h3>Quản lý sản phẩm</h3>
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject ProductApi ProductApi
+@inject NavigationManager Nav
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý sản phẩm</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
+            + Thêm sản phẩm
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <!-- Search -->
+        <div class="flex items-center gap-3">
+            <input type="text" placeholder="Tìm kiếm sản phẩm..."
+                class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                @bind="searchQuery" @oninput="OnSearchChanged" />
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tên sản phẩm</th>
+                    <th class="px-4 py-3 text-left">Danh mục</th>
+                    <th class="px-4 py-3 text-left">Nhà cung cấp</th>
+                    <th class="px-4 py-3 text-left">Giá</th>
+                    <th class="px-4 py-3 text-left">Barcode</th>
+                    <th class="px-4 py-3 text-left">Đơn vị tính</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (filteredProducts != null && filteredProducts.Count > 0)
+                {
+                    @foreach (var p in filteredProducts)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition cursor-pointer">
+                            <td class="px-4 py-3">@p.ProductId</td>
+                            <td class="px-4 py-3 font-medium">@p.ProductName</td>
+                            <td class="px-4 py-3">@p.CategoryName</td>
+                            <td class="px-4 py-3">@p.SupplierName</td>
+                            <td class="px-4 py-3 font-semibold text-blue-600">@p.Price</td>
+                            <td class="px-4 py-3">@p.Barcode</td>
+                            <td class="px-4 py-3">@p.Unit</td>
+
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+
+                                <!-- Button Edit -->
+                                <button
+                                    class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow">
+                                    Sửa
+                                </button>
+
+                                <!-- Button Delete -->
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-6 text-gray-500">
+                            Không có sản phẩm nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+@code {
+    private List<ProductResponse> products = new List<ProductResponse>();
+    private List<ProductResponse> filteredProducts = new List<ProductResponse>();
+    private string selectedProductId = string.Empty;
+    private string searchQuery = string.Empty;
+    private string selectedCategory = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        var productApiResponse = await ProductApi.GetAllAsync();
+
+        if (productApiResponse != null && productApiResponse.Data != null)
+        {
+            products = productApiResponse.Data;
+            filteredProducts = products;
+            foreach (var item in products)
+            {
+                Console.WriteLine($"Product: {item}");
+            }
+            Console.WriteLine($"Products loaded: {products.Count}");
+        }
+        else
+        {
+            Console.WriteLine("No products found or error in loading.");
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString()?.Trim().ToLower() ?? "";
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredProducts = products;
+            return;
+        }
+
+        filteredProducts = products
+        .Where(p =>
+        (!string.IsNullOrEmpty(p.ProductName) && p.ProductName.ToLower().Contains(searchQuery)) ||
+        (!string.IsNullOrEmpty(p.CategoryName) && p.CategoryName.ToLower().Contains(searchQuery)) ||
+        (!string.IsNullOrEmpty(p.SupplierName) && p.SupplierName.ToLower().Contains(searchQuery)) ||
+        (!string.IsNullOrEmpty(p.Barcode) && p.Barcode.ToLower().Contains(searchQuery)) ||
+        (!string.IsNullOrEmpty(p.Unit) && p.Unit.ToLower().Contains(searchQuery)) ||
+        p.Price.ToString().Contains(searchQuery)
+        )
+        .ToList();
+    }
+
+}

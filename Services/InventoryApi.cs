@@ -17,8 +17,8 @@ public sealed class InventoryApi
     public Task<ApiResponse<InventoryResponse>?> UpdateAsync(InventoryRequest request, CancellationToken ct = default)
         => apiClient.PutAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
 
-    public Task<ApiResponse<ProductResponse>?> GetAllAsync(CancellationToken ct = default)
-        => apiClient.GetAsync<ApiResponse<ProductResponse>>("Supplier", ct);
+    public Task<ApiResponse<List<InventoryResponse>>> GetAllAsync(CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<List<InventoryResponse>>>("inventory", ct);
 
     public Task<ApiResponse<InventoryResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
         => apiClient.GetByIdAsync<ApiResponse<InventoryResponse>>("Supplier", id, ct);

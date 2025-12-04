@@ -1,2 +1,121 @@
 ﻿@page "/admin/inventories"
-<h3>Quản lý tồn kho</h3>
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject InventoryApi InventoryApi
+@inject NavigationManager Nav
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý tồn kho</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
+            + Cập nhật tồn kho
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm theo tên sản phẩm..."
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            @bind="searchQuery" @oninput="OnSearchChanged" />
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Mã sản phẩm</th>
+                    <th class="px-4 py-3 text-left">Tên sản phẩm</th>
+                    <th class="px-4 py-3 text-left">Số lượng tồn</th>
+                    <th class="px-4 py-3 text-left">Ngày cập nhật</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (filteredInventories != null && filteredInventories.Count > 0)
+                {
+                    @foreach (var item in filteredInventories)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.InventoryId</td>
+                            <td class="px-4 py-3">@item.ProductId</td>
+                            <td class="px-4 py-3 font-medium">@item.ProductName</td>
+                            <td class="px-4 py-3 font-semibold text-blue-600">@item.Quantity</td>
+                            <td class="px-4 py-3">@item.UpdatedAt</td>
+
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+                                <button
+                                    class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow">
+                                    Sửa
+                                </button>
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-6 text-gray-500">
+                            Không có dữ liệu tồn kho.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    private List<InventoryResponse> inventories = new List<InventoryResponse>();
+    private List<InventoryResponse> filteredInventories = new List<InventoryResponse>();
+    private string searchQuery = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInventories();
+    }
+
+    private async Task LoadInventories()
+    {
+        var inventoryApiResponse = await InventoryApi.GetAllAsync();
+
+        if (inventoryApiResponse != null && inventoryApiResponse.Data != null)
+        {
+            inventories = inventoryApiResponse.Data;
+            filteredInventories = inventories;
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString()?.Trim().ToLower() ?? "";
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredInventories = inventories;
+            return;
+        }
+
+        filteredInventories = inventories
+        .Where(inv =>
+        inv.InventoryId.ToString().Contains(searchQuery) ||
+        inv.ProductId.ToString().Contains(searchQuery) ||
+        (!string.IsNullOrEmpty(inv.ProductName) &&
+        inv.ProductName.ToLower().Contains(searchQuery)) ||
+        inv.Quantity.ToString().Contains(searchQuery)
+        )
+        .ToList();
+    }
+}
