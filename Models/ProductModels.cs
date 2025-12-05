@@ -13,11 +13,18 @@ public sealed record ProductRequest(
 );
 
 public sealed record ProductResponse(
-    int ProductId,
-    string CategoryId,
-    string SupplierId,
-    string ProductName,
-    string Barcode,
-    string Unit
+    [property: JsonPropertyName("productId")] int ProductId,
+    [property: JsonPropertyName("categoryId")] int? CategoryId,
+    [property: JsonPropertyName("categoryName")] string? CategoryName,
+    [property: JsonPropertyName("supplierId")] int? SupplierId,
+    [property: JsonPropertyName("supplierName")] string? SupplierName,
+    [property: JsonPropertyName("productName")] string ProductName,
+    [property: JsonPropertyName("barcode")] string? Barcode,
+    [property: JsonPropertyName("price")] decimal Price,
+    [property: JsonPropertyName("unit")] string Unit,
+    [property: JsonPropertyName("productImg")] string? ProductImg,
+    [property: JsonPropertyName("createdAt")] DateTime CreatedAt,
+    [property: JsonPropertyName("currentStock")] int? CurrentStock
 );
+
 

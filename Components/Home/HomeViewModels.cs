@@ -1,6 +1,6 @@
 namespace frontendblazor.Components.Home;
 
-public sealed record CategoryItemVm(string Name, string ImageUrl);
+public sealed record CategoryItemVm(int CategoryId, string CategoryName);
 
 public sealed record ProductItemVm(
     string Name,

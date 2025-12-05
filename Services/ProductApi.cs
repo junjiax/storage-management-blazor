@@ -11,6 +11,9 @@ public sealed class ProductApi
     {
         this.apiClient = apiClient;
     }
+    public Task<ApiResponse<List<ProductResponse>>?> GetAllAsync(CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<List<ProductResponse>>>("product", ct);
+
 
 }
 

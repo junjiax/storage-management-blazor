@@ -4,9 +4,9 @@
     <div class="h-16 w-16 mx-auto mb-2 overflow-hidden rounded">
         <img class="h-full w-full object-cover" src="images/image 1.png" alt="category icon" />
     </div>
-    <div class="text-center text-sm font-medium">@Item.Name</div>
+    <div class="text-center text-sm font-medium">@Item.CategoryName</div>
 </div>
 
 @code {
-    [Parameter] public CategoryItemVm Item { get; set; } = new("", "");
+    [Parameter] public CategoryItemVm Item { get; set; } = new(0, "");
 }

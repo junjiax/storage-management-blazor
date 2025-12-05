@@ -1,46 +1,48 @@
 ﻿@page "/"
-
+@inject frontendblazor.Services.ProductApi productApi
+@inject frontendblazor.Services.CategoryApi categoryApi
 @using frontendblazor.Components.Home
+@using frontendblazor.Models
+
 <PageTitle>Trang chủ</PageTitle>
 
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
     <HeroBanner ImageUrl="images/BannarBig.png" />
-
     <ServiceHighlights />
-
-    <CategoryGrid Title="Danh mục phổ biến" Items="@popularCategories" />
-
+    <CategoryGrid Title="Danh mục phổ biến" Items="@categories" />
     <ProductGrid Title="Sản phẩm phổ biến" Items="@popularProducts" PageSize="10" />
-
     <Testimonials />
-
 </div>
 
 @code {
-    private readonly IEnumerable<CategoryItemVm> popularCategories = new List<CategoryItemVm>
-{
-new("Trái cây tươi", "icon-192.png"),
-new("Rau củ tươi", "icon-192.png"),
-new("Thịt & Cá", "icon-192.png"),
-new("Đồ ăn vặt", "icon-192.png"),
-new("Đồ uống", "icon-192.png"),
-new("Sức khỏe & Làm đẹp", "icon-192.png")
-};
 
-    private readonly IEnumerable<ProductItemVm> popularProducts = new List<ProductItemVm>
-{
-new("Táo xanh", "icon-192.png", 149000m, 189000m, true, "Giảm 12%"),
-new("Xà lách tươi", "icon-192.png", 65000m, null, true, null),
-new("Cà tím", "icon-192.png", 82500m),
-new("Bắp ngô", "icon-192.png", 120000m),
-new("Súp lơ", "icon-192.png", 115000m, 130000m, true, "Giảm giá"),
-new("Dưa leo", "icon-192.png", 92000m),
-new("Ớt xanh", "icon-192.png", 74000m),
-new("Khoai tây", "icon-192.png", 50000m),
-new("Ớt chuông", "icon-192.png", 98000m, 105000m, true, "Giảm 5%"),
-new("Bí ngòi", "icon-192.png", 84000m),
-new("Bí ngòi", "icon-192.png", 84000m),
-new("Bí ngòi", "icon-192.png", 84000m),
 
-};
+    private List<ProductItemVm> popularProducts = new();
+    private List<CategoryItemVm> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var categoryResponse = await categoryApi.GetAllAsync(CancellationToken.None);
+        Console.WriteLine(categoryResponse);
+        if (categoryResponse is not null && categoryResponse.Success && categoryResponse.Data is not null)
+        {
+            categories = categoryResponse.Data
+            .Select(c => new CategoryItemVm(c.CategoryId, c.CategoryName))
+            .ToList();
+        }
+        var response = await productApi.GetAllAsync(CancellationToken.None);
+        Console.WriteLine(response);
+        if (response is not null && response.Success && response.Data is not null)
+        {
+            popularProducts = response.Data
+            .Select(p => new ProductItemVm(
+            p.ProductName,
+            p.ProductImg ?? "",
+            p.Price,
+            p.CurrentStock ?? 0,
+            p.ProductId > 0
+            ))
+            .ToList();
+        }
+    }
 }

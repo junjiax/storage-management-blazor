@@ -33,9 +33,10 @@ builder.Services.AddScoped<ApiClient>(sp =>
 builder.Services.AddScoped<AuthApi>();
 
 // PRODUCT API DI
+builder.Services.AddScoped<ProductApi>();
 
 // CATEGORY API DI
-
+builder.Services.AddScoped<CategoryApi>();
 // SUPPLIER API DI
 
 // INVENTORY API DI
