@@ -104,7 +104,7 @@ public sealed class ApiClient
         return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
 
-     // GET BY ID
+    // GET BY ID
     public async Task<TResponse?> GetByIdAsync<TResponse>(string path, int id, CancellationToken ct = default)
     {
         return await GetAsync<TResponse>($"{path}/{id}", ct);
@@ -133,7 +133,7 @@ public sealed class ApiClient
         return await res.Content.ReadFromJsonAsync<TResponse>(cancellationToken: ct);
     }
 
-        // DELETE
+    // DELETE
     public async Task<TResponse?> DeleteAsync<TResponse>(string path, int id, CancellationToken ct = default)
     {
         using var req = new HttpRequestMessage(HttpMethod.Delete, $"{path}/{id}");
