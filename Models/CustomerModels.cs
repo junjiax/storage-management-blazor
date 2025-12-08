@@ -1,14 +1,28 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json.Serialization;
 
 namespace frontendblazor.Models;
-	public sealed record CustomerRequest(
-		[property: JsonPropertyName("name")] string Name,
-		[property: JsonPropertyName("phone")] string Phone,
-		[property: JsonPropertyName("email")] string Email,
-		[property: JsonPropertyName("address")] string Address
-	);
+	public sealed record CustomerRequest
+{
+	[Required(ErrorMessage = "Tên khách hàng là bắt buộc")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
+    [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+    [JsonPropertyName("phone")]
+    public string Phone { get; set; } = string.Empty;
+
+    // [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+    [RegularExpression(@"^$|^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$", ErrorMessage = "Email không hợp lệ")]
+    [JsonPropertyName("email")]
+    public string Email { get; set; } = string.Empty;
+
+    [JsonPropertyName("address")]
+    public string Address { get; set; } = string.Empty;
+}
 	public sealed record CustomerResponse(
 		int CustomerId,
 		string Name,

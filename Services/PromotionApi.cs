@@ -17,8 +17,8 @@ public sealed class PromotionApi
     public Task<ApiResponse<PromotionResponse>?> UpdateAsync(UpdatePromotionRequest request,int id ,CancellationToken ct = default)
         => apiClient.PutAsync<UpdatePromotionRequest, ApiResponse<PromotionResponse>>($"promotion/{id}", request, ct);
 	
-    public Task<ApiResponse<PromotionResponse>?> GetAllAsync(CancellationToken ct = default)
-	=> apiClient.GetAsync<ApiResponse<PromotionResponse>>("promotion", ct);
+    public Task<ApiResponse<List<PromotionResponse>>?> GetAllAsync(CancellationToken ct = default)
+	=> apiClient.GetAsync<ApiResponse<List<PromotionResponse>>>("promotion", ct);
 	
     public Task<ApiResponse<PromotionResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
 	=> apiClient.GetByIdAsync<ApiResponse<PromotionResponse>>("promotion", id, ct);
