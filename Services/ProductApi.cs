@@ -14,21 +14,15 @@ public sealed class ProductApi
     public Task<ApiResponse<List<ProductResponse>>?> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<ProductResponse>>>("product", ct);
 
-<<<<<<< HEAD
     public Task<ApiResponse<ProductResponse>?> UpdateAsync(ProductRequest request, CancellationToken ct = default)
         => apiClient.PutAsync<ProductRequest, ApiResponse<ProductResponse>>("auth/login", request, ct);
-
-    public Task<ApiResponse<List<ProductResponse>>?> GetAllAsync(CancellationToken ct = default)
-        => apiClient.GetAsync<ApiResponse<List<ProductResponse>>>("product", ct);
 
     public Task<ApiResponse<ProductResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
         => apiClient.GetByIdAsync<ApiResponse<ProductResponse>>("product", id, ct);
 
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("product", id, ct);
-=======
 
->>>>>>> origin/ten
 }
 
 

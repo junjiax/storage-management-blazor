@@ -8,7 +8,6 @@ public sealed record InventoryRequest(
     [property: JsonPropertyName("quantity")] string Quantity
 );
 
-<<<<<<< HEAD
 public sealed record InventoryResponse
 {
     [JsonPropertyName("inventoryId")]
@@ -28,12 +27,10 @@ public sealed record InventoryResponse
 }
 
 
-=======
-public sealed record InventoryResponse(
-    int InventoryId,
-    int ProductId,
-    string ProductName,
-    int Quantity,
-    DateTime UpdatedAt
-);
->>>>>>> origin/ten
+// public sealed record InventoryResponse(
+//     int InventoryId,
+//     int ProductId,
+//     string ProductName,
+//     int Quantity,
+//     DateTime UpdatedAt
+// );

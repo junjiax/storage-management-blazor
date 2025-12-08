@@ -2,11 +2,19 @@
 
 namespace frontendblazor.Models;
 
-public sealed record CategoryResponse(
-    int CategoryId,
-    string CategoryName
-);
-<<<<<<< HEAD
+
+    public class CategoryRequest
+    {
+        [JsonPropertyName("categoryName")]
+        public string CategoryName { get; set; } = string.Empty;
+    }
+
+    public class UpdateCategoryRequest
+    {
+        [JsonPropertyName("categoryName")]
+        public string CategoryName { get; set; } = string.Empty;
+    }
+
 
 public sealed record CategoryResponse{
     
@@ -18,5 +26,3 @@ public sealed record CategoryResponse{
 
 }
 
-=======
->>>>>>> origin/ten
