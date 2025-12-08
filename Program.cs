@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;
 using frontendblazor;
+using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,6 +14,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Default HttpClient for app resources
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+// Local Storage DI cho Cart
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<CartService>();
 
 // Auth + API DI
 builder.Services.AddAuthorizationCore();
