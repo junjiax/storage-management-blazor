@@ -2,7 +2,7 @@
 
 namespace frontendblazor.Models;
 
-public sealed record ProductRequest(
+public sealed class ProductRequest(
     [property: JsonPropertyName("categoryId")] string CategoryId,
     [property: JsonPropertyName("supplierId")] string SupplierId,
     [property: JsonPropertyName("productName")] string ProductName,
@@ -11,7 +11,7 @@ public sealed record ProductRequest(
     [property: JsonPropertyName("unit")] string Unit
 );
 
-public sealed record ProductResponse
+public sealed class ProductResponse
 {
     [JsonPropertyName("productId")]
     public int ProductId { get; init; }
