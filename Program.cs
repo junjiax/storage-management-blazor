@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using frontendblazor;
 using frontendblazor.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using frontendblazor;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,7 +13,12 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 // Default HttpClient for app resources
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
+<<<<<<< HEAD
 // API Dependency Injection
+=======
+
+// Auth + API DI
+>>>>>>> origin/ten
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<TokenStorage>();
 builder.Services.AddScoped<ApiAuthStateProvider>();
@@ -29,6 +35,7 @@ builder.Services.AddScoped<ApiClient>(sp =>
     );
 });
 builder.Services.AddScoped<AuthApi>();
+<<<<<<< HEAD
 builder.Services.AddScoped<ProductApi>();
 builder.Services.AddScoped<InventoryApi>();
 builder.Services.AddScoped<CustomerApi>();
@@ -36,6 +43,29 @@ builder.Services.AddScoped<CategoryApi>();
 builder.Services.AddScoped<PromotionApi>();
 builder.Services.AddScoped<SupplierApi>();
 builder.Services.AddScoped<UserApi>();
+=======
+
+// PRODUCT API DI
+builder.Services.AddScoped<ProductApi>();
+
+// CATEGORY API DI
+builder.Services.AddScoped<CategoryApi>();
+// SUPPLIER API DI
+
+// INVENTORY API DI
+
+// USER API DI
+
+// ORDER API DI
+
+// ORDER ITEM API DI
+
+// PROMOTION API DI
+
+// PAYMENT API DI
+
+// CUSTOMER API DI
+>>>>>>> origin/ten
 
 
 await builder.Build().RunAsync();

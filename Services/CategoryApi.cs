@@ -11,6 +11,7 @@ public sealed class CategoryApi
         this.apiClient = apiClient;
     }
 
+<<<<<<< HEAD
     public Task<ApiResponse<CategoryResponse>?> AddAsync(CategoryRequest request, CancellationToken ct = default)
         => apiClient.PostAsync<CategoryRequest, ApiResponse<CategoryResponse>>("category", request, ct);
 
@@ -25,6 +26,10 @@ public sealed class CategoryApi
 
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("category", id, ct);
+=======
+    public Task<ApiResponse<List<CategoryResponse>>?> GetAllAsync(CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<List<CategoryResponse>>>("category", ct);
+>>>>>>> origin/ten
 }
 
 

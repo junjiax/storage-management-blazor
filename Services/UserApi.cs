@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using frontendblazor.Models;
 
 namespace frontendblazor.Services;
@@ -26,3 +27,6 @@ public sealed class UserApi
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("users", id, ct);
 }
+=======
+﻿
+>>>>>>> origin/ten
