@@ -71,3 +71,5 @@ yarn-error.log*
 # Blazor / WASM
 wwwroot/**/*.js.map
 wwwroot/**/*.css.map
+
+.nuget/
