@@ -1,11 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./wwwroot/index.html",
-    "./Pages/**/*.{razor,html}",
-    "./Layout/**/*.{razor,html}",
-    "./Shared/**/*.{razor,html}",
-    "./**/*.razor",
+        "./wwwroot/index.html",
+        "./Pages/**/*.{razor,razor.cs,html}",
+        "./Layout/**/*.{razor,razor.cs,html}",
+        "./Shared/**/*.{razor,razor.cs,html}",
+        "./Components/**/*.{razor,razor.cs,html}",
+        "./**/*.{razor,razor.cs,html}"
   ],
   darkMode: "class",
   theme: {

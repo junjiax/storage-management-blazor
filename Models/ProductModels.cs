@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using System.Text.Json.Serialization;
 
 namespace frontendblazor.Models;
 
@@ -45,5 +46,7 @@ public sealed class ProductResponse
 
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; init; }
+
+    public int? CurrentStock { get; init; }
 
 };

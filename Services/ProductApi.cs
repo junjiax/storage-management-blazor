@@ -1,4 +1,5 @@
-﻿using frontendblazor.Models;
+﻿
+using frontendblazor.Models;
 
 namespace frontendblazor.Services;
 
@@ -11,9 +12,6 @@ public sealed class ProductApi
         this.apiClient = apiClient;
     }
     
-    public Task<ApiResponse<ProductResponse>?> AddAsync(ProductRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<ProductRequest, ApiResponse<ProductResponse>>("auth/login", request, ct);
-
     public Task<ApiResponse<ProductResponse>?> UpdateAsync(ProductRequest request, CancellationToken ct = default)
         => apiClient.PutAsync<ProductRequest, ApiResponse<ProductResponse>>("auth/login", request, ct);
 

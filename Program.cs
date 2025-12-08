@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using frontendblazor;
 using frontendblazor.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using frontendblazor;
+using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,6 +15,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 // API Dependency Injection
+// Local Storage DI cho Cart
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<CartService>();
+
+// Auth + API DI
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<TokenStorage>();
 builder.Services.AddScoped<ApiAuthStateProvider>();
@@ -35,5 +42,6 @@ builder.Services.AddScoped<CustomerApi>();
 builder.Services.AddScoped<CategoryApi>();
 builder.Services.AddScoped<PromotionApi>();
 builder.Services.AddScoped<SupplierApi>();
+// builder.Services.AddScoped<OrderApi>();
 
 await builder.Build().RunAsync();

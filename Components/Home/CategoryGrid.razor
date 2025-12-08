@@ -1,0 +1,18 @@
+@namespace frontendblazor.Components.Home
+@using frontendblazor.Components.Home
+<div class="reveal-on-scroll">
+    <SectionHeader Title="@Title" ViewAllUrl="@ViewAllUrl" ActionText="@ActionText" />
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+        @foreach (var c in Items)
+        {
+            <CategoryCard Item="c" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Danh mục phổ biến";
+    [Parameter] public string? ViewAllUrl { get; set; } = "#";
+    [Parameter] public string ActionText { get; set; } = "Xem tất cả";
+    [Parameter] public IEnumerable<CategoryItemVm> Items { get; set; } = Array.Empty<CategoryItemVm>();
+}
