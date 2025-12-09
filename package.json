@@ -11,5 +11,3 @@
     "watch:css": "tailwindcss -i Styles/tailwind.css -o wwwroot/css/app.css --watch"
   }
 }
-
-
