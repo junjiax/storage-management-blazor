@@ -17,8 +17,8 @@ public sealed class SupplierApi
     public Task<ApiResponse<SupplierResponse>?> UpdateAsync(SupplierRequest request,int id ,CancellationToken ct = default)
         => apiClient.PutAsync<SupplierRequest, ApiResponse<SupplierResponse>>($"Supplier/{id}", request, ct);
 	
-    public Task<ApiResponse<SupplierResponse>?> GetAllAsync(CancellationToken ct = default)
-	    => apiClient.GetAsync<ApiResponse<SupplierResponse>>("Supplier", ct);
+    public Task<ApiResponse<List<SupplierResponse>?>> GetAllAsync(CancellationToken ct = default)
+	    => apiClient.GetAsync<ApiResponse<List<SupplierResponse>>>("Supplier", ct);
 	
     public Task<ApiResponse<SupplierResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
 	    => apiClient.GetByIdAsync<ApiResponse<SupplierResponse>>("Supplier", id, ct);

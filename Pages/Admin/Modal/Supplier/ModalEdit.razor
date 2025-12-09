@@ -1,0 +1,97 @@
+@page "/admin/suppliers/update/{Id:int}"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@inject IJSRuntime JS
+
+@inject SupplierApi SupplierApi
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Sửa nhà cung cấp</h2>
+
+    <EditForm Model="UpdateSupplier" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @* <ValidationSummary /> *@
+
+        <div>
+            <label>Tên nhà cung cấp</label>
+            <InputText @bind-Value="UpdateSupplier.Name" class="w-full border rounded px-2 py-1" />
+            <div class="text-red-600 text-sm mt-1">
+                <ValidationMessage For="@(() => UpdateSupplier.Name)" />
+            </div>
+        </div>
+
+        <div>
+            <label>Số điện thoại</label>
+            <InputText @bind-Value="UpdateSupplier.Phone" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage  class="text-red-600 text-sm mt-1" For="@(() => UpdateSupplier.Phone)" />
+        </div>
+
+        <div>
+            <label>Email</label>
+            <InputText @bind-Value="UpdateSupplier.Email" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage  class="text-red-600 text-sm mt-1" For="@(() => UpdateSupplier.Email)" />
+        </div>
+
+        <div>
+            <label>Địa chỉ</label>
+            <InputText @bind-Value="UpdateSupplier.Address" class="w-full border rounded px-2 py-1" />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa nhà cung cấp</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500" @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    
+    private SupplierRequest UpdateSupplier = new SupplierRequest
+    {
+        Name = "",
+        Phone = "",
+        Email = "",
+        Address = ""
+    };
+    protected override async Task OnInitializedAsync()
+{
+    ApiResponse<SupplierResponse>? Supplier = await SupplierApi.GetByIdAsync(Id);
+
+    if (Supplier != null)
+    {
+        UpdateSupplier = new SupplierRequest
+        {
+            Name = Supplier.Data.Name,
+            Phone = Supplier.Data.Phone,
+            Email = Supplier.Data.Email,
+            Address = Supplier.Data.Address
+        };
+    }
+}
+
+    private void Cancel()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/suppliers", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await SupplierApi.UpdateAsync(UpdateSupplier, Id);
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Sửa nhà cung cấp thành công!");
+
+            // Sửa xong quay về danh sách
+            Nav.NavigateTo("/admin/suppliers", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Sửa nhà cung cấp thất bại!");
+        }
+    }
+}

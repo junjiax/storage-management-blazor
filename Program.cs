@@ -43,5 +43,7 @@ builder.Services.AddScoped<CategoryApi>();
 builder.Services.AddScoped<PromotionApi>();
 builder.Services.AddScoped<SupplierApi>();
 // builder.Services.AddScoped<OrderApi>();
+builder.Services.AddScoped<UserApi>();
+
 
 await builder.Build().RunAsync();

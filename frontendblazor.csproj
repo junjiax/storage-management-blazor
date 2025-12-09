@@ -10,5 +10,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
     <!-- Authorization package có thể dùng 10.0.0 vì 9.0.0 chưa tồn tại -->
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
   </ItemGroup>
 </Project>

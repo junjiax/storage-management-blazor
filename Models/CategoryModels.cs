@@ -2,15 +2,25 @@
 
 namespace frontendblazor.Models;
 
-public sealed class CategoryRequest(
-    [property: JsonPropertyName("categoryName")] string CategoryName
-);
+public class CategoryRequest
+{
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; set; } = string.Empty;
+}
 
-public sealed class CategoryResponse{
-    
+public class UpdateCategoryRequest
+{
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; set; } = string.Empty;
+}
+
+
+public class CategoryResponse
+{
+
     [JsonPropertyName("categoryId")]
     public int CategoryId { get; init; }
-    
+
     [JsonPropertyName("categoryName")]
     public string CategoryName { get; init; }
 

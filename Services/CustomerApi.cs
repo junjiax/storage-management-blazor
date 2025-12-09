@@ -17,8 +17,8 @@ public sealed class CustomerApi
     public Task<ApiResponse<CustomerResponse>?> UpdateAsync(CustomerRequest request,int id ,CancellationToken ct = default)
         => apiClient.PutAsync<CustomerRequest, ApiResponse<CustomerResponse>>($"customer/{id}", request, ct);
 	
-    public Task<ApiResponse<CustomerResponse>?> GetAllAsync(CancellationToken ct = default)
-    	=> apiClient.GetAsync<ApiResponse<CustomerResponse>>("customer", ct);
+    public Task<ApiResponse<List<CustomerResponse>>?> GetAllAsync(CancellationToken ct = default)
+    	=> apiClient.GetAsync<ApiResponse<List<CustomerResponse>>>("customer", ct);
 	
     public Task<ApiResponse<CustomerResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
     	=> apiClient.GetByIdAsync<ApiResponse<CustomerResponse>>("customer", id, ct);

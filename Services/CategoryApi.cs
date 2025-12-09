@@ -25,6 +25,7 @@ public sealed class CategoryApi
 
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("category", id, ct);
+
 }
 
 

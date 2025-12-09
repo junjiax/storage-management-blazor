@@ -13,8 +13,8 @@
     <div class="flex items-center justify-between">
         <h2 class="text-3xl font-bold text-gray-800">Quản lý tồn kho</h2>
 
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
-            + Cập nhật tồn kho
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition" @onclick="Add">
+            + Thêm tồn kho
         </button>
     </div>
 
@@ -117,5 +117,11 @@
         inv.Quantity.ToString().Contains(searchQuery)
         )
         .ToList();
+    }
+
+    private void Add()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/inventories/add", true);
     }
 }

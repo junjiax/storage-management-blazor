@@ -26,4 +26,4 @@ public sealed record UpdatePromotionRequest(
 
 public sealed record PromotionResponse(int PromoId,string PromoCode, string? Description,string DiscountType,
 										decimal DiscountValue,DateTime StartDate,DateTime EndDate,int UsageLimit,
-										int UsedCount,string Status);	
+										int UsedCount,string Status);
