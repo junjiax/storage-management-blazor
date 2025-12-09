@@ -16,10 +16,13 @@ public sealed class PromotionApi
 
     public Task<ApiResponse<PromotionResponse>?> UpdateAsync(UpdatePromotionRequest request,int id ,CancellationToken ct = default)
         => apiClient.PutAsync<UpdatePromotionRequest, ApiResponse<PromotionResponse>>($"promotion/{id}", request, ct);
-	public Task<ApiResponse<PromotionResponse>?> GetAllAsync(CancellationToken ct = default)
+	
+    public Task<ApiResponse<PromotionResponse>?> GetAllAsync(CancellationToken ct = default)
 	=> apiClient.GetAsync<ApiResponse<PromotionResponse>>("promotion", ct);
-	public Task<ApiResponse<PromotionResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
+	
+    public Task<ApiResponse<PromotionResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
 	=> apiClient.GetByIdAsync<ApiResponse<PromotionResponse>>("promotion", id, ct);
-	public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
+	
+    public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
     => apiClient.DeleteAsync<ApiResponse<bool>>("promotion", id, ct);
 }

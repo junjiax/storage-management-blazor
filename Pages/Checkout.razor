@@ -31,7 +31,7 @@
                                 <p class="text-gray-900 font-medium">@customerEmail</p>
                             </div>
                         </div>
-                        <button @onclick='() => OpenModal("contact")' class="text-blue-600 text-sm font-medium hover:underline px-2 py-1 rounded hover:bg-blue-50 transition">
+                        <button @onclick='() => OpenModal("contact")' class="text-emerald-600 text-sm font-medium hover:underline px-2 py-1 rounded hover:bg-emerald-50 transition">
                             Sửa
                         </button>
                     </div>
@@ -50,7 +50,7 @@
                                 <p class="text-gray-900 font-medium">@shippingAddress</p>
                             </div>
                         </div>
-                        <button @onclick='() => OpenModal("address")' class="text-blue-600 text-sm font-medium hover:underline px-2 py-1 rounded hover:bg-blue-50 transition">
+                        <button @onclick='() => OpenModal("address")' class="text-emerald-600 text-sm font-medium hover:underline px-2 py-1 rounded hover:bg-emerald-50 transition">
                             Sửa
                         </button>
                     </div>
@@ -65,22 +65,22 @@
                         <div class="flex space-x-2 rounded-lg bg-gray-100 p-1">
                             @* Nút Thẻ *@
                             <button @onclick='() => paymentMethod = "card"' 
-                                    class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200 @(paymentMethod == "card" ? "bg-white shadow text-blue-600 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
+                                    class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200 @(paymentMethod == "card" ? "bg-white shadow text-emerald-400 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                 </svg>
                                 Thẻ quốc tế
-                                @if(paymentMethod == "card") { <span class="ml-1 w-2 h-2 bg-blue-600 rounded-full"></span> }
+                                @if(paymentMethod == "card") { <span class="ml-1 w-2 h-2 bg-emerald-600 rounded-full"></span> }
                             </button>
 
                             @* Nút COD *@
                             <button @onclick='() => paymentMethod = "cod"' 
-                                    class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200 @(paymentMethod == "cod" ? "bg-white shadow text-blue-600 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
+                                    class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200 @(paymentMethod == "cod" ? "bg-white shadow text-emerald-500 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                                 COD (Tiền mặt)
-                                @if(paymentMethod == "cod") { <span class="ml-1 w-2 h-2 bg-blue-600 rounded-full"></span> }
+                                @if(paymentMethod == "cod") { <span class="ml-1 w-2 h-2 bg-emerald-600 rounded-full"></span> }
                             </button>
                         </div>
 
@@ -92,7 +92,7 @@
                                     <label class="block text-sm font-medium text-gray-700">Số thẻ</label>
                                     <div class="relative">
                                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                             </svg>
                                         </div>
@@ -102,19 +102,19 @@
                                 <div class="flex gap-4">
                                     <div class="flex-1 space-y-1">
                                         <label class="block text-sm font-medium text-gray-700">Hết hạn</label>
-                                        <input type="text" class="block w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-3" placeholder="MM / YY" />
+                                        <input type="text" class="block w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-3 pl-2" placeholder="MM / YY" />
                                     </div>
                                     <div class="flex-1 space-y-1">
                                         <label class="block text-sm font-medium text-gray-700">CVC</label>
-                                        <input type="text" class="block w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-3" placeholder="123" />
+                                        <input type="text" class="block w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-3 pl-2" placeholder="123" />
                                     </div>
                                 </div>
                             </div>
                         }
                         else
                         {
-                            <div class="flex flex-col items-center justify-center py-6 text-center animate-fade-in bg-blue-50 rounded-lg border border-blue-100">
-                                <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 text-blue-600">
+                            <div class="flex flex-col items-center justify-center py-6 text-center animate-fade-in bg-emerald-50 rounded-lg border border-emerald-100">
+                                <div class="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center mb-3 text-emerald-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                     </svg>
@@ -138,7 +138,7 @@
                         
                         <div class="p-6 space-y-6">
                             @* Danh sách sản phẩm (Có scroll nếu dài) *@
-                            <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            <div class="space-y-4 max-h-[250px] overflow-y-auto pr-2 border p-2 rounded-lg custom-scrollbar">
                                 @foreach (var item in cartItems)
                                 {
                                     <div class="flex gap-4">
@@ -174,7 +174,7 @@
                                 </div>
                                 <div class="flex justify-between text-gray-500">
                                     <span>Phí vận chuyển</span>
-                                    <span class="text-green-600 font-medium">Miễn phí</span>
+                                    <span class="text-emerald-400 font-medium">Miễn phí</span>
                                 </div>
                                 <div class="flex justify-between text-gray-500">
                                     <span>Thuế VAT (8%)</span>
@@ -189,12 +189,12 @@
                                 <span class="text-base font-bold text-gray-900">Tổng cộng</span>
                                 <div class="text-right">
                                     <p class="text-xs text-gray-500 mb-0.5">VND</p>
-                                    <p class="text-2xl font-bold text-blue-600 tracking-tight">@((SubTotal * 1.08m).ToString("N0")) ₫</p>
+                                    <p class="text-2xl font-bold text-emerald-400 tracking-tight">@((SubTotal * 1.08m).ToString("N0")) ₫</p>
                                 </div>
                             </div>
 
                             @* Nút thanh toán *@
-                            <button @onclick="HandlePayment" class="w-full flex items-center justify-center rounded-xl bg-blue-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all active:scale-[0.98]">
+                            <button @onclick="HandlePayment" class="w-full flex items-center justify-center rounded-xl bg-emerald-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-blue-500/30 hover:bg-emerald-400 transition-all active:scale-[0.98]">
                                 Thanh toán ngay
                             </button>
                         </div>
@@ -220,7 +220,24 @@
 
         </div>
     </div>
-
+    
+@* Style tùy chọn để thanh cuộn đẹp hơn (giống MacOS/Mobile) *@
+<style>
+    /* Ẩn thanh cuộn mặc định xấu xí */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #e5e7eb; /* gray-200 */
+        border-radius: 20px;
+    }
+    .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+        background-color: #d1d5db; /* gray-300 */
+    }
+</style>
     @* --- MODAL CHỈNH SỬA THÔNG TIN --- *@
     @if (isModalOpen)
     {
@@ -326,7 +343,9 @@
         cartItems = new List<CartItem>
         {
             new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" },
-    new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" }
+    new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" },        new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" },
+new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" },        new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" },
+new CartItem { ProductId = 1, ProductName = "iPhone 15 Pro Max", Price = 34990000, Quantity = 1, ImageUrl = "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-titan-tu-nhien-1-1-600x600.jpg" }
       
         };
     }
