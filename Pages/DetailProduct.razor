@@ -1,0 +1,161 @@
+@page "/product/{Id:int}"
+@using frontendblazor.Models
+@inject frontendblazor.Services.ProductApi productApi
+@inject NavigationManager Navigation
+
+<PageTitle>Chi tiết sản phẩm</PageTitle>
+
+@if (isLoading)
+{
+    <div class="max-w-6xl mx-auto px-4 py-10 text-center text-slate-500">
+        Đang tải sản phẩm...
+    </div>
+}
+else if (Product is null)
+{
+    <div class="max-w-6xl mx-auto px-4 py-10 text-center text-slate-500">
+        Không tìm thấy sản phẩm.
+    </div>
+}
+else
+{
+    <div class="max-w-6xl mx-auto px-4 py-8">
+
+        <!-- Breadcrumb -->
+        <div class="mb-4 text-xs text-slate-500 flex items-center gap-1">
+            <span class="cursor-pointer hover:text-emerald-600" @onclick="@(() => Navigation.NavigateTo("/"))">Trang chủ</span>
+            <span>/</span>
+            <span class="cursor-pointer hover:text-emerald-600" @onclick="@(() => Navigation.NavigateTo("/products"))">Sản phẩm</span>
+            <span>/</span>
+            <span class="text-slate-700">@Product.ProductName</span>
+        </div>
+
+        <!-- Main layout -->
+        <div class="grid gap-10 lg:grid-cols-2">
+
+            <!-- LEFT: IMAGE -->
+            <div class="aspect-square rounded-xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden">
+                <img src="@MainImageUrl" class="h-full w-full object-contain" alt="@Product.ProductName" />
+            </div>
+
+            <!-- RIGHT: PRODUCT INFO -->
+            <div>
+                <h1 class="text-2xl font-semibold text-slate-900">@Product.ProductName</h1>
+
+                @if (IsInStock)
+                {
+                    <span class="mt-2 inline-block rounded-full bg-emerald-100 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                        Còn hàng (@Product.CurrentStock)
+                    </span>
+                }
+                else
+                {
+                    <span class="mt-2 inline-block rounded-full bg-rose-100 px-3 py-1 text-[11px] font-semibold text-rose-700">
+                        Hết hàng
+                    </span>
+                }
+
+                <!-- PRICE -->
+                <div class="mt-4 flex items-center gap-3">
+                    <span class="text-2xl font-semibold text-emerald-600">
+                        @Product.Price.ToString("c0")
+                    </span>
+                    <span class="text-xs text-slate-500">/ @Product.Unit</span>
+                </div>
+
+                <!-- BASIC INFO -->
+                <div class="mt-5 space-y-1 text-sm text-slate-600">
+                    <div><span class="font-semibold">Danh mục:</span> @Product.CategoryName</div>
+                    <div><span class="font-semibold">Nhà cung cấp:</span> @Product.SupplierName</div>
+                    <div><span class="font-semibold">Barcode:</span> @(Product.Barcode ?? "—")</div>
+                </div>
+
+                <!-- QUANTITY + ADD -->
+                <div class="mt-6 flex items-center gap-4">
+                    <div class="flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5">
+                        <button class="px-2 text-lg text-slate-500 hover:text-emerald-600" @onclick="DecreaseQuantity">-</button>
+                        <input class="w-10 bg-transparent text-center text-sm text-slate-900 border-0" value="@Quantity" readonly />
+                        <button class="px-2 text-lg text-slate-500 hover:text-emerald-600" @onclick="IncreaseQuantity">+</button>
+                    </div>
+
+                    <button class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 transition"
+                            @onclick="AddToCart">
+                        Thêm vào giỏ
+                    </button>
+                </div>
+
+                <!-- SHORT DESCRIPTION -->
+                <div class="mt-6 text-sm text-slate-600">
+                    Sản phẩm thuộc danh mục <b>@Product.CategoryName</b>, được cung cấp bởi
+                    <b>@Product.SupplierName</b>. Đơn vị tính: <b>@Product.Unit</b>.
+                </div>
+            </div>
+        </div>
+
+        <!-- EXTRA INFO (SHORTER) -->
+        <div class="mt-10 border-t border-slate-200 pt-8">
+            <h2 class="text-base font-semibold text-slate-900 mb-3">Thông tin thêm</h2>
+
+            <div class="grid gap-6 sm:grid-cols-2 text-sm text-slate-600">
+                <div class="space-y-2">
+                    <div class="flex justify-between py-1 border-b border-dashed border-slate-200">
+                        <span class="text-slate-500">Mã sản phẩm</span>
+                        <span class="font-medium text-slate-800">@Product.ProductId</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-dashed border-slate-200">
+                        <span class="text-slate-500">Đơn vị</span>
+                        <span class="font-medium text-slate-800">@Product.Unit</span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b border-dashed border-slate-200">
+                        <span class="text-slate-500">Tồn kho</span>
+                        <span class="font-medium text-slate-800">@((Product.CurrentStock ?? 0))</span>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 bg-emerald-50 p-5 text-xs space-y-2">
+                    <b class="text-slate-800">Ưu đãi & Giao hàng</b>
+                    <ul class="space-y-1">
+                        <li class="flex gap-2"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-[11px] text-emerald-700">✓</span>Giao hàng 2–4 ngày.</li>
+                        <li class="flex gap-2"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-[11px] text-emerald-700">✓</span>Kiểm tra hàng trước khi thanh toán.</li>
+                        <li class="flex gap-2"><span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-[11px] text-emerald-700">✓</span>Hỗ trợ xuất hóa đơn.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ProductResponse? Product;
+    private bool isLoading = true;
+    private int Quantity = 1;
+
+    private bool IsInStock => (Product?.CurrentStock ?? 0) > 0;
+
+    private string MainImageUrl =>
+        string.IsNullOrWhiteSpace(Product?.ProductImg)
+        ? "images/image.png"
+        : Product.ProductImg!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await productApi.GetByIdAsync(Id);
+        Product = res?.Data;
+
+        isLoading = false;
+    }
+
+    void IncreaseQuantity() => Quantity++;
+
+    void DecreaseQuantity()
+    {
+        if (Quantity > 1) Quantity--;
+    }
+
+    void AddToCart()
+    {
+        Console.WriteLine($"Add {Quantity} x {Product?.ProductName} to cart");
+    }
+}

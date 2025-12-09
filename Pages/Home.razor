@@ -15,34 +15,38 @@
 </div>
 
 @code {
-
-
     private List<ProductItemVm> popularProducts = new();
     private List<CategoryItemVm> categories = new();
 
     protected override async Task OnInitializedAsync()
     {
-        var categoryResponse = await categoryApi.GetAllAsync(CancellationToken.None);
-        Console.WriteLine(categoryResponse);
-        if (categoryResponse is not null && categoryResponse.Success && categoryResponse.Data is not null)
+        // Load Categories
+        var categoryResponse = await categoryApi.GetAllAsync();
+        if (categoryResponse?.Success == true && categoryResponse.Data is not null)
         {
             categories = categoryResponse.Data
             .Select(c => new CategoryItemVm(c.CategoryId, c.CategoryName))
             .ToList();
         }
-        var response = await productApi.GetAllAsync(CancellationToken.None);
-        Console.WriteLine(response);
-        if (response is not null && response.Success && response.Data is not null)
+
+        // Load Products
+        var response = await productApi.GetAllAsync();
+        // Load Products
+
+        if (response?.Success == true && response.Data is not null)
         {
             popularProducts = response.Data
             .Select(p => new ProductItemVm(
+            p.ProductId, // 👈 BẠN ĐÃ THÊM TRƯỜNG NÀY → PHẢI TRUYỀN VÀO
             p.ProductName,
             p.ProductImg ?? "",
             p.Price,
-            p.CurrentStock ?? 0,
-            p.ProductId > 0
+            null, // OldPrice
+            (p.CurrentStock ?? 0) > 0, // InStock: true/false
+            p.ProductId > 0 ? "Hot" : null // Badge
             ))
             .ToList();
         }
+
     }
 }

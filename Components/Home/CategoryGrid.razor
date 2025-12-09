@@ -2,7 +2,7 @@
 @using frontendblazor.Components.Home
 <div class="reveal-on-scroll">
     <SectionHeader Title="@Title" ViewAllUrl="@ViewAllUrl" ActionText="@ActionText" />
-    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 items-center">
         @foreach (var c in Items)
         {
             <CategoryCard Item="c" />
