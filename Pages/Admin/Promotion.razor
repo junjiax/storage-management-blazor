@@ -1,2 +1,196 @@
 ﻿@page "/admin/promotions"
-<h3>Quản lý ưu đãi</h3>
+@using System.Globalization
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@inject AuthApi AuthApi
+@inject PromotionApi PromotionApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+@{
+    var viVn = new CultureInfo("vi-VN");
+    viVn.NumberFormat.CurrencySymbol = "₫"; // đảm bảo hiển thị ₫
+    viVn.NumberFormat.CurrencyPositivePattern = 3; // hiển thị sau số, có space
+
+}
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý khuyến mãi</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition"
+                @onclick="() => Add()">
+            + Thêm khuyến mãi
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm mã khuyến mãi..."
+               @bind="searchTerm"
+               class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+        <button @onclick="SearchPromotion"
+                class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
+            Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Mã khuyến mãi</th>
+                    <th class="px-4 py-3 text-left">Mô tả</th>
+                    <th class="px-4 py-3 text-left">Loại giảm giá</th>
+                    <th class="px-4 py-3 text-left">Giá trị</th>
+                    <th class="px-4 py-3 text-left">Áp dụng tối thiểu</th>
+                    <th class="px-4 py-3 text-left">Ngày bắt đầu</th>
+                    <th class="px-4 py-3 text-left">Ngày kết thúc</th>
+                    <th class="px-4 py-3 text-left">Số lượt sử dụng</th>
+                    <th class="px-4 py-3 text-left">Trạng thái</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (PagedPromotions != null && PagedPromotions.Count > 0)
+                {
+                    @foreach (var item in PagedPromotions)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.PromoId</td>
+                            <td class="px-4 py-3 font-medium">@item.PromoCode</td>
+                            <td class="px-4 py-3 font-medium">@item.Description</td>
+                            <td class="px-4 py-3 font-medium">@(item.DiscountType == "percent" ? "phần trăm" : "tổng tiền") </td>
+                            <td class="px-4 py-3 font-medium">@item.DiscountValue.ToString("C3", viVn)</td>
+                            <td class="px-4 py-3 font-medium">@item.MinOrderAmount.ToString("C3", viVn)</td>
+                            <td class="px-4 py-3 font-medium">@item.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 font-medium">@item.EndDate.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 font-medium">@item.UsedCount / @item.UsageLimit</td>
+                            <td class="px-4 py-3 font-medium">@item.Status</td>
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+                                <button class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow"
+                                        @onclick="() => Update(item.PromoId)">
+                                    Sửa
+                                </button>
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow"
+                                        @onclick="() => ConfirmDelete(item.PromoId)">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="10" class="text-center py-6 text-gray-500">
+                            Không có khuyến mãi nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center gap-2 mt-4">
+        <button @onclick="PrevPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == 1)">
+            &lt; Trước
+        </button>
+
+        @for(int i = 1; i <= totalPages; i++)
+        {
+            int j = i;
+            <button @onclick="(() => GoToPage(j))" 
+                class="px-3 py-1 rounded-md border 
+                                @(currentPage == i 
+                                    ? "bg-blue-500 text-blue-600 border-blue-900 shadow" 
+                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300")">               
+                                     @i
+            </button>
+        }
+
+        <button @onclick="NextPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == totalPages)">
+            Tiếp &gt;
+        </button>
+    </div>
+</div>
+
+@code {
+    
+    private List<PromotionResponse> promotions = new List<PromotionResponse>();
+    private List<PromotionResponse> promotionsFilter = new List<PromotionResponse>();
+
+    private string searchTerm = string.Empty;
+
+    // Phân trang
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)promotionsFilter.Count / pageSize);
+
+    private List<PromotionResponse> PagedPromotions =>
+        promotionsFilter.Skip((currentPage - 1) * pageSize)
+                        .Take(pageSize)
+                        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPromotions();
+    }
+
+    private async Task LoadPromotions()
+    {
+        var response = await PromotionApi.GetAllAsync();
+        if(response?.Data != null)
+        {
+            promotions = response.Data;
+            promotionsFilter = response.Data;
+        }
+    }
+
+    private void SearchPromotion()
+    {
+        if(promotions == null) return;
+
+        promotionsFilter = string.IsNullOrWhiteSpace(searchTerm)
+            ? new List<PromotionResponse>(promotions)
+            : promotions
+                .Where(c => (c.PromoCode ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                            (c.Description ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+        currentPage = 1; // reset về trang 1 khi tìm kiếm
+    }
+
+    private void GoToPage(int page) => currentPage = page;
+    private void NextPage() { if(currentPage < totalPages) currentPage++; }
+    private void PrevPage() { if(currentPage > 1) currentPage--; }
+
+    private void Add() => Nav.NavigateTo("/admin/promotions/add", true);
+    private void Update(int id) => Nav.NavigateTo($"/admin/promotions/update/{id}", true);
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa khuyến mãi id = {id}?");
+        if (confirmed)
+        {
+            var response = await PromotionApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadPromotions();
+                SearchPromotion();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
+    }
+}
