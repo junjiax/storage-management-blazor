@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:.nuget/packages/microsoft.net.illink.tasks/8.0.22/tools/net8.0/illink.runtimeconfig.json
 {
   "runtimeOptions": {
     "tfm": "net8.0",
@@ -13,3 +14,20 @@
     }
   }
 }
+========
+{
+  "runtimeOptions": {
+    "tfm": "net9.0",
+    "rollForward": "Major",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "9.0.2-servicing.25066.10"
+    },
+    "configProperties": {
+      "System.GC.Server": true,
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,
+      "System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization": false
+    }
+  }
+}
+>>>>>>>> 68b460f98a0d2a92dcf0adefc67c8223c0622de8:.nuget/packages/microsoft.net.illink.tasks/9.0.2/tools/net9.0/illink.runtimeconfig.json
