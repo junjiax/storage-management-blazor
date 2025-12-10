@@ -1,46 +1,86 @@
 @page "/admin/products/update/{Id:int}"
+@using System.Globalization
 @using frontendblazor.Models
 @using frontendblazor.Services
 @inject IJSRuntime JS
-
 @inject ProductApi ProductApi
+@inject CategoryApi CategoryApi
+@inject SupplierApi SupplierApi
+
 @inject NavigationManager Nav
 
 <div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-2xl font-bold mb-6">Sửa sản phẩm</h2>
 
-    <EditForm Model="NewCustomer" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="NewProduct" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @* <ValidationSummary /> *@
-
         <div>
-            <label>Tên khách</label>
-            <InputText @bind-Value="NewCustomer.Name" class="w-full border rounded px-2 py-1" />
-            <div class="text-red-600 text-sm mt-1">
-                <ValidationMessage For="@(() => NewCustomer.Name)" />
-            </div>
+            <label>Danh mục</label>
+            <select @bind="NewProduct.CategoryId" class="w-full border rounded px-2 py-1">
+                @foreach (var category in categories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </select>
         </div>
 
         <div>
-            <label>Số điện thoại</label>
-            <InputText @bind-Value="NewCustomer.Phone" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage class="text-red-600 text-sm mt-1" For="@(() => NewCustomer.Phone)" />
+            <label>Nhà cung cấp</label>
+            <select @bind="NewProduct.SupplierId" class="w-full border rounded px-2 py-1">
+                @foreach (var supplier in suppliers)
+                {
+                    <option value="@supplier.SupplierId">@supplier.Name</option>
+                }
+            </select>
         </div>
 
         <div>
-            <label>Email</label>
-            <InputText @bind-Value="NewCustomer.Email" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage class="text-red-600 text-sm mt-1" For="@(() => NewCustomer.Email)" />
+            <label>Tên sản phẩm</label>
+            <InputText @bind-Value="NewProduct.ProductName" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewProduct.ProductName)" class="text-red-600 text-sm mt-1" />
         </div>
 
         <div>
-            <label>Địa chỉ</label>
-            <InputText @bind-Value="NewCustomer.Address" class="w-full border rounded px-2 py-1" />
+            <label>Barcode</label>
+            <InputText @bind-Value="NewProduct.Barcode" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage class="text-red-600 text-sm mt-1" For="@(() => NewProduct.Barcode)" />
+        </div>
+
+        <div>
+            <label>Giá</label>
+            <InputNumber @bind-Value="NewProduct.Price" class="w-full border rounded px-2 py-1" format="C" />
+            <ValidationMessage For="@(() => NewProduct.Price)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div>
+            <label>Đơn vị tính</label>
+            <InputText @bind-Value="NewProduct.Unit" class="w-full border rounded px-2 py-1" />
+        </div>
+
+        <div>
+            <label class="font-medium">Hình ảnh</label>
+            <InputFile OnChange="HandleFileUpload" accept="image/*" class="w-full border rounded px-2 py-1" />
+
+            @* @if (!string.IsNullOrEmpty(NewProduct.ProductImg))
+            { *@
+                <div class="mt-3 flex justify-center">
+                    <img src="data:image/jpeg;base64,@NewProduct.ProductImg"
+                        class="w-40 h-40 object-cover rounded-lg shadow border" />
+                </div>
+            @* } *@
+
+
+            @if (!string.IsNullOrEmpty(uploadError))
+            {
+                <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                    @uploadError
+                </div>
+            }
         </div>
 
         <div class="flex justify-end gap-3 mt-4">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa khách
-                hàng</button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa</button>
             <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500"
                 @onclick="Cancel">Hủy</button>
         </div>
@@ -51,30 +91,67 @@
 @code {
     [Parameter]
     public int Id { get; set; }
-
-
-
-    private CustomerRequest NewCustomer = new CustomerRequest
+    private string uploadError = string.Empty;
+    private ProductRequest NewProduct = new ProductRequest
     {
-        Name = "",
-        Phone = "",
-        Email = "",
-        Address = ""
+        CategoryId = 0,
+        SupplierId = 0,
+        ProductName = "",
+        Barcode = "",
+        Price = 0,
+        Unit = "",
+        ProductImg = ""
     };
+
+    private List<CategoryResponse> categories = new List<CategoryResponse>();
+    private List<SupplierResponse> suppliers = new List<SupplierResponse>();
+    private CategoryRequest NewCategory = new CategoryRequest
+    {
+        CategoryName = "",
+    };
+    private async Task LoadSelectValues()
+    {
+        var CategoryApiReponse = await CategoryApi.GetAllAsync();
+        var SupplierApiReponse = await SupplierApi.GetAllAsync();
+
+        if (CategoryApiReponse != null && SupplierApiReponse != null)
+        {
+            if (CategoryApiReponse?.Data != null)
+                categories = CategoryApiReponse.Data;
+
+            if (SupplierApiReponse?.Data != null)
+                suppliers = SupplierApiReponse.Data;
+
+            categories = CategoryApiReponse?.Data ?? new();
+            suppliers = SupplierApiReponse?.Data ?? new();
+
+        }
+        else
+        {
+            Console.WriteLine("No category found or error in loading.");
+            Console.WriteLine("No supplier found or error in loading.");
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
-        @* ApiResponse<CustomerResponse>? customer = await ProductApi.GetByIdAsync(Id);
+        await LoadSelectValues();
 
-        if (customer != null)
+        ApiResponse<ProductResponse>? product = await ProductApi.GetByIdAsync(Id);
+
+        if (product != null)
         {
-            NewCustomer = new CustomerRequest
+            NewProduct = new ProductRequest
             {
-                Name = customer.Data.Name,
-                Phone = customer.Data.Phone,
-                Email = customer.Data.Email,
-                Address = customer.Data.Address
+                CategoryId = product.Data.CategoryId ?? 0,
+                SupplierId = product.Data.SupplierId ?? 0,
+                ProductName = product.Data.ProductName,
+                Barcode = product.Data.Barcode ?? "",
+                Price = product.Data.Price,
+                Unit = product.Data.Unit,
+                ProductImg = product.Data.ProductImg ?? "",
             };
-        } *@
+        }
     }
 
     private void Cancel()
@@ -85,17 +162,49 @@
 
     private async Task HandleValidSubmit()
     {
-        @* var response = await CustomerApi.UpdateAsync(NewCustomer, Id);
+        var response = await ProductApi.UpdateAsync(NewProduct, Id);
         if (response != null && response.Success)
         {
-            await JS.InvokeVoidAsync("alert", "Sửa khách hàng thành công!");
+            await JS.InvokeVoidAsync("alert", "Sửa sản phẩm thành công!");
 
             // Sửa xong quay về danh sách
-            Nav.NavigateTo("/admin/customers", true);
+            Nav.NavigateTo("/admin/products", true);
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Sửa khách hàng thất bại!");
-        } *@
+            await JS.InvokeVoidAsync("alert", "Sửa sản phẩm thất bại!");
+        }
+    }
+
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            uploadError = string.Empty;
+
+            var file = e.File;
+            long maxSize = 5 * 1024 * 1024;
+
+            if (file.Size > maxSize)
+            {
+                uploadError = "Ảnh quá lớn, tối đa 5MB.";
+                return;
+            }
+
+            using var stream = file.OpenReadStream(maxSize);
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+
+            var base64 = Convert.ToBase64String(ms.ToArray());
+
+            NewProduct = NewProduct with
+            {
+                ProductImg = base64
+            };
+        }
+        catch (Exception ex)
+        {
+            uploadError = "Lỗi: " + ex.Message;
+        }
     }
 }

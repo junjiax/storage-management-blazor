@@ -14,8 +14,8 @@ public sealed class CategoryApi
     public Task<ApiResponse<CategoryResponse>?> AddAsync(CategoryRequest request, CancellationToken ct = default)
         => apiClient.PostAsync<CategoryRequest, ApiResponse<CategoryResponse>>("category", request, ct);
 
-    public Task<ApiResponse<CategoryResponse>?> UpdateAsync(CategoryRequest request, CancellationToken ct = default)
-        => apiClient.PutAsync<CategoryRequest, ApiResponse<CategoryResponse>>("category", request, ct);
+    public Task<ApiResponse<CategoryResponse>?> UpdateAsync(CategoryRequest request, int id,CancellationToken ct = default)
+        => apiClient.PutAsync<CategoryRequest, ApiResponse<CategoryResponse>>($"category/{id}", request, ct);
 
     public Task<ApiResponse<List<CategoryResponse>>> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<CategoryResponse>>>("category", ct);

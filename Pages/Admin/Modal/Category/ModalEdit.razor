@@ -7,40 +7,23 @@
 @inject NavigationManager Nav
 
 <div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Sửa khách hàng</h2>
+    <h2 class="text-2xl font-bold mb-6">Sửa danh mục</h2>
 
-    <EditForm Model="NewCustomer" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="NewCategory" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         @* <ValidationSummary /> *@
 
         <div>
             <label>Tên khách</label>
-            <InputText @bind-Value="NewCustomer.Name" class="w-full border rounded px-2 py-1" />
+            <InputText @bind-Value="NewCategory.CategoryName" class="w-full border rounded px-2 py-1" />
             <div class="text-red-600 text-sm mt-1">
-                <ValidationMessage For="@(() => NewCustomer.Name)" />
+                <ValidationMessage For="@(() => NewCategory.CategoryName)" />
             </div>
         </div>
 
-        <div>
-            <label>Số điện thoại</label>
-            <InputText @bind-Value="NewCustomer.Phone" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage class="text-red-600 text-sm mt-1" For="@(() => NewCustomer.Phone)" />
-        </div>
-
-        <div>
-            <label>Email</label>
-            <InputText @bind-Value="NewCustomer.Email" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage class="text-red-600 text-sm mt-1" For="@(() => NewCustomer.Email)" />
-        </div>
-
-        <div>
-            <label>Địa chỉ</label>
-            <InputText @bind-Value="NewCustomer.Address" class="w-full border rounded px-2 py-1" />
-        </div>
-
         <div class="flex justify-end gap-3 mt-4">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa khách
-                hàng</button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa danh
+                mục</button>
             <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500"
                 @onclick="Cancel">Hủy</button>
         </div>
@@ -54,48 +37,44 @@
 
 
 
-    private CustomerRequest NewCustomer = new CustomerRequest
+    private CategoryRequest NewCategory = new CategoryRequest
     {
-        Name = "",
-        Phone = "",
-        Email = "",
-        Address = ""
+        CategoryName = ""
     };
+
     protected override async Task OnInitializedAsync()
     {
-        @* ApiResponse<CustomerResponse>? customer = await CustomerApi.GetByIdAsync(Id);
+        ApiResponse<CategoryResponse>? category = await CategoryApi.GetByIdAsync(Id);
 
-        if (customer != null)
+        if (category != null)
         {
-            NewCustomer = new CustomerRequest
+            NewCategory = new CategoryRequest
             {
-                Name = customer.Data.Name,
-                Phone = customer.Data.Phone,
-                Email = customer.Data.Email,
-                Address = customer.Data.Address
+                CategoryName = category.Data.CategoryName,
             };
-        } *@
+        }
     }
 
     private void Cancel()
     {
         // reset form hoặc quay về danh sách
-        Nav.NavigateTo("/admin/customers", true);
+        Nav.NavigateTo("/admin/categories", true);
     }
 
     private async Task HandleValidSubmit()
     {
-        @* var response = await CustomerApi.UpdateAsync(NewCustomer, Id);
+        var response = await CategoryApi.UpdateAsync(NewCategory, Id);
+
         if (response != null && response.Success)
         {
-            await JS.InvokeVoidAsync("alert", "Sửa khách hàng thành công!");
+            await JS.InvokeVoidAsync("alert", "Sửa danh mục thành công!");
 
             // Sửa xong quay về danh sách
-            Nav.NavigateTo("/admin/customers", true);
+            Nav.NavigateTo("/admin/categories", true);
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Sửa khách hàng thất bại!");
-        } *@
+            await JS.InvokeVoidAsync("alert", "Sửa danh mục thất bại!");
+        }
     }
 }

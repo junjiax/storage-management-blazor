@@ -2,20 +2,20 @@
 
 namespace frontendblazor.Models;
 
-public class CategoryRequest
+public record CategoryRequest
 {
     [JsonPropertyName("categoryName")]
     public string CategoryName { get; set; } = string.Empty;
 }
 
-public class UpdateCategoryRequest
+public record UpdateCategoryRequest
 {
     [JsonPropertyName("categoryName")]
     public string CategoryName { get; set; } = string.Empty;
 }
 
 
-public class CategoryResponse
+public record CategoryResponse
 {
 
     [JsonPropertyName("categoryId")]

@@ -3,9 +3,19 @@
 @using frontendblazor.Services
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Globalization
+
 @inject AuthApi AuthApi
 @inject ProductApi ProductApi
 @inject NavigationManager Nav
+
+@inject IJSRuntime JS
+@{
+    var viVn = new CultureInfo("vi-VN");
+    viVn.NumberFormat.CurrencySymbol = "₫"; // đảm bảo hiển thị ₫
+    viVn.NumberFormat.CurrencyPositivePattern = 3; // hiển thị sau số, có space
+
+}
 
 <div class="p-6 space-y-6">
 
@@ -34,6 +44,7 @@
             <thead class="bg-gray-100 border-b">
                 <tr class="text-gray-700 uppercase text-sm">
                     <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Hình ảnh</th>
                     <th class="px-4 py-3 text-left">Tên sản phẩm</th>
                     <th class="px-4 py-3 text-left">Danh mục</th>
                     <th class="px-4 py-3 text-left">Nhà cung cấp</th>
@@ -51,23 +62,28 @@
                     {
                         <tr class="border-b hover:bg-blue-50 transition cursor-pointer">
                             <td class="px-4 py-3">@p.ProductId</td>
+                            <!-- Cột Ảnh -->
+                            <td class="px-4 py-3">
+                                <img src="@p.ProductImg" alt="Ảnh sản phẩm" class="w-12 h-12 object-cover rounded-md shadow" />
+                            </td>
                             <td class="px-4 py-3 font-medium">@p.ProductName</td>
                             <td class="px-4 py-3">@p.CategoryName</td>
                             <td class="px-4 py-3">@p.SupplierName</td>
-                            <td class="px-4 py-3 font-semibold text-blue-600">@p.Price</td>
+                            <td class="px-4 py-3 font-semibold text-blue-600">@p.Price.ToString("C3", viVn)</td>
                             <td class="px-4 py-3">@p.Barcode</td>
                             <td class="px-4 py-3">@p.Unit</td>
 
                             <td class="px-4 py-3 text-center flex justify-center gap-2">
 
                                 <!-- Button Edit -->
-                                <button
-                                    class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow">
+                                <button class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow"
+                                    @onclick="() => Update(p.ProductId ?? 0)">
                                     Sửa
                                 </button>
 
                                 <!-- Button Delete -->
-                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow">
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow"
+                                    @onclick="() => ConfirmDelete(p.ProductId ?? 0)">
                                     Xóa
                                 </button>
                             </td>
@@ -150,4 +166,28 @@
         Nav.NavigateTo("/admin/products/add", true);
     }
 
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/products/update/{id}", true);
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa sản phẩm id = {id}?");
+        if (confirmed)
+        {
+            var response = await ProductApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadProducts(); // load lại danh sách
+                OnSearchChanged(new ChangeEventArgs { Value = searchQuery });
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
+    }
 }

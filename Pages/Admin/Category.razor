@@ -6,6 +6,8 @@
 @inject AuthApi AuthApi
 @inject CategoryApi CategoryApi
 @inject NavigationManager Nav
+@inject IJSRuntime JS
+
 
 <div class="p-6 space-y-6">
 
@@ -44,18 +46,14 @@
                         <tr class="border-b hover:bg-blue-50 transition">
                             <td class="px-4 py-3">@item.CategoryId</td>
                             <td class="px-4 py-3 font-medium">@item.CategoryName</td>
-
-
                             <td class="px-4 py-3 text-center flex justify-center gap-2">
 
-                                <!-- Button Edit -->
-                                <button
-                                    class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow">
+                                <button class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow"
+                                    @onclick="() => Update(item.CategoryId)">
                                     Sửa
                                 </button>
-
-                                <!-- Button Delete -->
-                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow">
+                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow"
+                                    @onclick="() => ConfirmDelete(item.CategoryId)">
                                     Xóa
                                 </button>
                             </td>
@@ -77,7 +75,7 @@
 </div>
 
 @code {
-    private List<CategoryResponse> categories = new List<CategoryResponse>();    
+    private List<CategoryResponse> categories = new List<CategoryResponse>();
     private List<CategoryResponse> filteredCategories = new List<CategoryResponse>();
     private string searchQuery = string.Empty;
 
@@ -94,9 +92,10 @@
         if (CategoryApiReponse != null && CategoryApiReponse.Data != null)
         {
             categories = CategoryApiReponse.Data;
-            foreach (var item in categories)
+            filteredCategories = categories;
+            foreach (var item in filteredCategories)
             {
-                Console.WriteLine($"Category: {item}");
+                Console.WriteLine($"Category: {item.CategoryName}");
             }
             Console.WriteLine($"categories loaded: {categories.Count}");
         }
@@ -117,7 +116,7 @@
         }
 
         filteredCategories = categories
-        .Where(cat => 
+        .Where(cat =>
         cat.CategoryId.ToString().Contains(searchQuery) ||
         (!string.IsNullOrEmpty(cat.CategoryName) &&
         cat.CategoryName.ToLower().Contains(searchQuery))
@@ -129,5 +128,30 @@
     {
         // reset form hoặc quay về danh sách
         Nav.NavigateTo("/admin/categories/add", true);
+    }
+
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/categories/update/{id}", true);
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa danh mục id = {id}?");
+        if (confirmed)
+        {
+            var response = await CategoryApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadCategories(); // load lại danh sách
+                OnSearchChanged(new ChangeEventArgs { Value = searchQuery });
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
     }
 }

@@ -20,4 +20,4 @@ public sealed record SupplierRequest
     [JsonPropertyName("address")]
     public string? Address { get; set; }
 }
-public sealed record SupplierResponse(int SupplierId, string Name,string? Phone, string? Email,string? Address);
+public sealed record SupplierResponse(int SupplierId, string Name, string? Phone, string? Email, string? Address);
