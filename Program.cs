@@ -54,6 +54,8 @@ builder.Services.AddScoped<InventoryApi>();
 // USER API DI
 
 // ORDER API DI
+builder.Services.AddScoped<OrderApi>();
+
 
 // ORDER ITEM API DI
 
@@ -61,6 +63,7 @@ builder.Services.AddScoped<InventoryApi>();
 builder.Services.AddScoped<PromotionApi>();
 
 // PAYMENT API DI
+builder.Services.AddScoped<PaymentApi>();
 
 // CUSTOMER API DI
 builder.Services.AddScoped<CustomerApi>();

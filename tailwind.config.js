@@ -1,14 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-        "./wwwroot/index.html",
-        "./Pages/**/*.{razor,razor.cs,html}",
-        "./Layout/**/*.{razor,razor.cs,html}",
-        "./Shared/**/*.{razor,razor.cs,html}",
-        "./Components/**/*.{razor,razor.cs,html}",
-        "./**/*.{razor,razor.cs,html}"
+    "./index.html",
+    "./App.razor",
+
+    // Pages
+    "./Pages/**/*.{razor,html,cshtml}",
+
+    // Components trong thư mục Home
+    "./Components/Home/**/*.{razor,html,cshtml}",
+
+    // Components khác
+    "./Components/**/*.{razor,html,cshtml}",
+
+    // Shared layout
+    "./Shared/**/*.{razor,html,cshtml}",
   ],
-  darkMode: "class",
   theme: {
     extend: {},
   },

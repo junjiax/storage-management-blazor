@@ -11,7 +11,11 @@ public sealed class PromotionApi
         this.apiClient = apiClient;
     }
 
-    public Task<ApiResponse<PromotionResponse>?> AddAsync(CreatePromotionRequest request, CancellationToken ct = default)
+   public Task<ApiResponse<List<PromotionResponse>>?> GetApplicablePromotionsAsync(string orderTotal, CancellationToken ct = default)
+        => apiClient.GetAsync<ApiResponse<List<PromotionResponse>>>($"promotion/min-order/{orderTotal}", ct);
+
+
+   public Task<ApiResponse<PromotionResponse>?> AddAsync(CreatePromotionRequest request, CancellationToken ct = default)
         => apiClient.PostAsync<CreatePromotionRequest, ApiResponse<PromotionResponse>>("promotion", request, ct);
 
     public Task<ApiResponse<PromotionResponse>?> UpdateAsync(UpdatePromotionRequest request,int id ,CancellationToken ct = default)

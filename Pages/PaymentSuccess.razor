@@ -1,0 +1,77 @@
+﻿@page "/payment-success"
+@using frontendblazor.Models
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@inject frontendblazor.Services.OrderApi orderApi
+@inject frontendblazor.Services.CartService CartService
+
+
+<div class="flex justify-center mt-16">
+    <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center">
+
+        <div class="flex justify-center mb-4">
+            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-green-100 text-green-600 text-4xl">
+                ✔
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h2>
+
+        @if (order == null)
+        {
+            <p class="text-gray-600">Đang tải thông tin đơn hàng...</p>
+        }
+        else
+        {
+            <div class="bg-gray-50 rounded-xl p-4 mt-6 text-left space-y-1">
+                <p><span class="font-semibold">Mã đơn hàng:</span> @order.OrderId</p>
+                <p><span class="font-semibold">Tổng thanh toán:</span> @(order.TotalAmount.ToString("N0")) đ</p>
+                <p><span class="font-semibold">Mã giảm giá:</span> @order.PromoId</p>
+            </div>
+        }
+        <button 
+            class="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded-lg transition"
+            @onclick="GoBackToCart">
+            ⬅ Quay về giỏ hàng
+        </button>
+
+    </div>
+</div>
+
+@code {
+    [Parameter, SupplyParameterFromQuery]
+    public string? orderId { get; set; }
+
+    OrderResponse? order;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CartService.ClearCart();
+        if (!string.IsNullOrEmpty(orderId))
+        {
+            try
+            {
+                var response = await orderApi.GetByIdAsync(orderId);
+
+                if (response == null || response.Data == null || !response.Success)
+                {
+                    await JS.InvokeVoidAsync("alert", "Không thể lấy thông tin đơn hàng.");
+                    return ;
+                }
+
+                order = response.Data;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                await JS.InvokeVoidAsync("alert", "Lỗi kết nối khi lấy thông tin đơn hàng.");
+                return ;
+            }
+        }
+    }
+    
+    private void GoBackToCart()
+        {
+            Navigation.NavigateTo("/cart");
+        }
+}
