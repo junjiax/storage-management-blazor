@@ -1,4 +1,6 @@
 @namespace frontendblazor.Components.Layout
+@using frontendblazor.Services
+@inject CartService CartService
 
 <header class="border-b bg-white shadow-sm">
     <!-- Top bar -->
@@ -85,7 +87,7 @@
                     </div>
                     <div class="text-xs md:text-sm leading-tight">
                         <div class="text-slate-500">Giỏ hàng</div>
-                        <div class="font-semibold text-slate-900">$57.00</div>
+                        <div class="font-semibold text-slate-900">@TotalFormatted đ</div>
                     </div>
                 </NavLink>
 
@@ -145,3 +147,21 @@
         </div>
     </nav>
 </header>
+@code {
+    private decimal Total = 0m;
+
+    private string TotalFormatted => Total.ToString("N0");
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCartTotal();
+        CartService.OnChange += async () => await LoadCartTotal();
+    }
+
+    private async Task LoadCartTotal()
+    {
+        var cart = await CartService.GetCart();
+        Total = cart.Sum(item => item.Price * item.Quantity);
+        StateHasChanged(); // cập nhật UI
+    }
+}

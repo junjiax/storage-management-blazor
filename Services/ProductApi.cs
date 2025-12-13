@@ -1,5 +1,4 @@
-﻿
-using frontendblazor.Models;
+﻿using frontendblazor.Models;
 
 namespace frontendblazor.Services;
 
@@ -30,5 +29,3 @@ public sealed class ProductApi
         => apiClient.DeleteAsync<ApiResponse<bool>>("product", id, ct);
 
 }
-
-
