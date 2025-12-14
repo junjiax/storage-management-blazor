@@ -1,0 +1,61 @@
+@namespace frontendblazor.Components.Home
+@inherits ComponentBase
+<div class="mt-6 flex items-center justify-center gap-1 select-none">
+    <button class="px-3 py-1.5 rounded border text-sm hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+        @onclick="() => ChangePage(CurrentPage - 1)" disabled="@(CurrentPage <= 1)">
+        Trước
+    </button>
+    @foreach (var page in VisiblePages)
+    {
+        var isActive = page == CurrentPage;
+        <button
+            class="px-3 py-1.5 rounded border text-sm hover:bg-gray-50 @(isActive ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700" : "")"
+            @onclick="() => ChangePage(page)">
+            @(page)
+        </button>
+    }
+    <button class="px-3 py-1.5 rounded border text-sm hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white"
+        @onclick="() => ChangePage(CurrentPage + 1)" disabled="@(CurrentPage >= TotalPages)">
+        Sau
+    </button>
+</div>
+
+@code {
+    [Parameter] public int CurrentPage { get; set; } = 1;
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public int MaxPageButtons { get; set; } = 5;
+
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling((double)TotalItems / Math.Max(1, PageSize)));
+
+    private IEnumerable<int> VisiblePages
+    {
+        get
+        {
+            var total = TotalPages;
+            var half = MaxPageButtons / 2;
+            var start = Math.Max(1, CurrentPage - half);
+            var end = Math.Min(total, start + MaxPageButtons - 1);
+            start = Math.Max(1, end - MaxPageButtons + 1);
+            return Enumerable.Range(start, end - start + 1);
+        }
+    }
+
+    private async Task ChangePage(int page)
+    {
+        var next = Math.Min(Math.Max(1, page), TotalPages);
+        if (next != CurrentPage)
+        {
+            CurrentPage = next;
+            if (OnPageChanged.HasDelegate)
+            {
+                await OnPageChanged.InvokeAsync(CurrentPage);
+            }
+            else
+            {
+                StateHasChanged();
+            }
+        }
+    }
+}

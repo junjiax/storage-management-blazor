@@ -1,0 +1,118 @@
+@page "/admin/promotions/update/{Id:int}"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject PromotionApi PromotionApi
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Cập nhật khuyến mãi</h2>
+
+    <EditForm Model="UpdatePromotion" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Mã khuyến mãi</label>
+            <InputText @bind-Value="PromoCode" class="w-full border rounded px-2 py-1" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label>Mô tả</label>
+            <InputText @bind-Value="UpdatePromotion.Description" class="w-full border rounded px-2 py-1" />
+        </div>
+        <div class="mb-3">
+            <label>Loại giảm giá</label>
+            <select @bind="UpdatePromotion.DiscountType" class="w-full border rounded px-2 py-1">
+                <option value="percent">Phần trăm</option>
+                <option value="fixed">Số tiền</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Giá trị giảm</label>
+            <InputNumber @bind-Value="UpdatePromotion.DiscountValue" class="w-full border rounded px-2 py-1" format="C"/>
+            <ValidationMessage For="@(() => UpdatePromotion.DiscountValue)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Ngày bắt đầu</label>
+            <InputDate @bind-Value="UpdatePromotion.StartDate" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => UpdatePromotion.StartDate)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Ngày kết thúc</label>
+            <InputDate @bind-Value="UpdatePromotion.EndDate" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => UpdatePromotion.EndDate)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Giá trị đơn tối thiểu</label>
+            <InputNumber @bind-Value="UpdatePromotion.MinOrderAmount" class="w-full border rounded px-2 py-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Số lượt sử dụng</label>
+            <InputNumber @bind-Value="UpdatePromotion.UsageLimit" class="w-full border rounded px-2 py-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Trạng thái</label>
+            <select @bind="UpdatePromotion.Status" class="w-full border rounded px-2 py-1">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+            <ValidationMessage For="@(() => UpdatePromotion.Status)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cập nhật</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private string PromoCode = "";
+    private UpdatePromotionRequest UpdatePromotion = new UpdatePromotionRequest();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await PromotionApi.GetByIdAsync(Id);
+        if (response != null && response.Success && response.Data != null)
+        {
+            PromoCode = response.Data.PromoCode;
+            UpdatePromotion.Description = response.Data.Description;
+            UpdatePromotion.DiscountType = response.Data.DiscountType;
+            UpdatePromotion.DiscountValue = response.Data.DiscountValue;
+            UpdatePromotion.StartDate = response.Data.StartDate;
+            UpdatePromotion.EndDate = response.Data.EndDate;
+            UpdatePromotion.MinOrderAmount = response.Data.MinOrderAmount;
+            UpdatePromotion.UsageLimit = response.Data.UsageLimit;
+            UpdatePromotion.Status = response.Data.Status;
+        }
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/admin/promotions", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await PromotionApi.UpdateAsync(UpdatePromotion, Id);
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật khuyến mãi thành công!");
+            Nav.NavigateTo("/admin/promotions", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật khuyến mãi thất bại!");
+        }
+    }
+}

@@ -6,10 +6,10 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15"
   },
-  "scripts": {
-    "build:css": "tailwindcss -i Styles/tailwind.css -o wwwroot/css/app.css -m",
-    "watch:css": "tailwindcss -i Styles/tailwind.css -o wwwroot/css/app.css --watch"
-  }
+  
+    "scripts": {
+      "build:css": "tailwindcss -i Styles/tailwind.css -o wwwroot/css/app.css -m"
+    }
+  
+  
 }
-
-

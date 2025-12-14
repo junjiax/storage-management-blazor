@@ -1,0 +1,114 @@
+@page "/admin/promotions/add"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject PromotionApi PromotionApi
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Thêm khuyến mãi mới</h2>
+
+    <EditForm Model="NewPromotion" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @* <ValidationSummary /> *@
+
+        <div class="mb-3">
+            <label>Mã khuyến mãi</label>
+            <InputText @bind-Value="NewPromotion.PromoCode" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.PromoCode)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Mô tả</label>
+            <InputText @bind-Value="NewPromotion.Description" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.Description)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+          <div class="mb-3">
+            <label>Loại giảm giá</label>
+            <select @bind="NewPromotion.DiscountType" class="w-full border rounded px-2 py-1">
+                <option value="percent">Phần trăm</option>
+                <option value="fixed">Số tiền</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Giá trị giảm</label>
+            <InputNumber @bind-Value="NewPromotion.DiscountValue" class="w-full border rounded px-2 py-1" format="C"/>
+            <ValidationMessage For="@(() => NewPromotion.DiscountValue)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Ngày bắt đầu</label>
+            <InputDate @bind-Value="NewPromotion.StartDate" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.StartDate)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Ngày kết thúc</label>
+            <InputDate @bind-Value="NewPromotion.EndDate" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.EndDate)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Giá trị đơn tối thiểu</label>
+            <InputNumber @bind-Value="NewPromotion.MinOrderAmount" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.MinOrderAmount)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Số lượt sử dụng</label>
+            <InputNumber @bind-Value="NewPromotion.UsageLimit" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewPromotion.UsageLimit)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="mb-3">
+            <label>Trạng thái</label>
+            <select @bind="NewPromotion.Status" class="w-full border rounded px-2 py-1">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Thêm khuyến mãi</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private CreatePromotionRequest NewPromotion = new CreatePromotionRequest
+    {
+        PromoCode = "",
+        Description = "",
+        DiscountType = "percent",
+        DiscountValue = 0,
+        StartDate = DateTime.Today,
+        EndDate = DateTime.Today,
+        MinOrderAmount = 0,
+        UsageLimit = 1,
+        Status = "active"
+    };
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/admin/promotions", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await PromotionApi.AddAsync(NewPromotion);
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Thêm khuyến mãi thành công!");
+            Nav.NavigateTo("/admin/promotions", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Thêm khuyến mãi thất bại!");
+        }
+    }
+}

@@ -10,21 +10,22 @@ public sealed class ProductApi
     {
         this.apiClient = apiClient;
     }
-    
-    public Task<ApiResponse<ProductResponse>?> AddAsync(ProductRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<ProductRequest, ApiResponse<ProductResponse>>("auth/login", request, ct);
 
-    public Task<ApiResponse<ProductResponse>?> UpdateAsync(ProductRequest request, CancellationToken ct = default)
-        => apiClient.PutAsync<ProductRequest, ApiResponse<ProductResponse>>("auth/login", request, ct);
+    // public Task<ApiResponse<ProductResponse>?> AddAsync(ProductRequest request, CancellationToken ct = default)
+    //     => apiClient.PostAsync<ProductRequest, ApiResponse<ProductResponse>>("product", request, ct);
+    public Task<ApiResponse<ProductResponse>?> AddAsync(ProductRequest request, CancellationToken ct = default)
+        => apiClient.PostAsync<ProductRequest, ApiResponse<ProductResponse>>("product/with-image", request, ct);
 
     public Task<ApiResponse<List<ProductResponse>>?> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<ProductResponse>>>("product", ct);
+
+    public Task<ApiResponse<ProductResponse>?> UpdateAsync(ProductRequest request, int id, CancellationToken ct = default)
+        => apiClient.PutAsync<ProductRequest, ApiResponse<ProductResponse>>($"product/{id}", request, ct);
 
     public Task<ApiResponse<ProductResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
         => apiClient.GetByIdAsync<ApiResponse<ProductResponse>>("product", id, ct);
 
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("product", id, ct);
+
 }
-
-

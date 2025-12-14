@@ -1,0 +1,709 @@
+﻿@page "/checkout"
+@inject NavigationManager Navigation
+@inject frontendblazor.Services.CartService CartService
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject frontendblazor.Services.CustomerApi customerApi
+@inject frontendblazor.Services.OrderApi orderApi
+@inject frontendblazor.Services.PromotionApi promotionApi
+@inject frontendblazor.Services.PaymentApi paymentApi
+@using System.Net.Http.Json
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using System.Text.RegularExpressions
+@using System.Globalization;
+
+
+
+
+<PageTitle>Thanh toán an toàn</PageTitle>
+
+<div class="min-h-screen bg-gray-50 text-gray-900 font-sans py-8 lg:py-12 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            @* === CỘT TRÁI === *@
+            <div class="lg:col-span-7 xl:col-span-8 space-y-8">
+                <div>
+                    <h1 class="text-3xl font-bold">Thanh toán</h1>
+                    <p class="text-gray-500 mt-2">Hoàn tất đơn hàng của bạn.</p>
+                </div>
+                @* LIÊN HỆ & ĐỊA CHỈ *@
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+                    @* Liên hệ *@
+                    <div class="p-5 flex justify-between items-center border-b border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gray-100 p-2 rounded-full text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Liên hệ</p>
+                                <p class="text-gray-900 font-medium">
+                                    @(currentCustomer == null
+                                                                        ? "Chưa có thông tin liên hệ"
+                                                                        : $"{currentCustomer.Name} - {currentCustomer.Phone} - {currentCustomer.Email}")
+                                </p>
+                            </div>
+                        </div>
+                        <button @onclick='() => OpenModal("contact")'
+                            class="text-emerald-600 font-medium hover:underline">
+                            Sửa
+                        </button>
+                    </div>
+
+                    @* Địa chỉ *@
+                    <div class="p-5 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-gray-100 p-2 rounded-full text-gray-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Giao tới</p>
+                                <p class="text-gray-900 font-medium">
+                                    @(currentCustomer?.Address ?? "Chưa có địa chỉ giao hàng")
+                                </p>
+                            </div>
+                        </div>
+                        <button @onclick='() => OpenModal("address")'
+                            class="text-emerald-600 font-medium hover:underline">
+                            Sửa
+                        </button>
+                    </div>
+                </div>
+
+                @* PHƯƠNG THỨC THANH TOÁN *@
+                <section class="space-y-4">
+                    <h2 class="text-xl font-bold text-gray-900">Phương thức thanh toán</h2>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+                        <div class="flex space-x-2 rounded-lg bg-gray-100 p-1">
+                            @* Nút VNPAY *@
+                            <button @onclick='() => paymentMethod = "vnpay"'
+                                class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200
+                                    @(paymentMethod == "vnpay" ? "bg-white shadow text-emerald-600 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
+
+                                <span class="font-bold">VNPAY</span>
+
+                                @if (paymentMethod == "vnpay")
+                                {
+                                    <span
+                                        class="ml-1 w-2 h-2 bg-emerald-600 rounded-full"></span>
+                                }
+                            </button>
+                            <button @onclick='() => paymentMethod = "cod"'
+                                class="flex-1 rounded-md text-sm font-medium py-3 flex items-center justify-center gap-2 transition-all duration-200 
+                                    @(paymentMethod == "cod" ? "bg-white shadow text-emerald-500 ring-1 ring-black/5" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200")">
+
+                                <span class="font-bold">COD</span>
+                                @if (paymentMethod == "cod")
+                                {
+                                    <span
+                                        class="ml-1 w-2 h-2 bg-emerald-600 rounded-full"></span>
+                                }
+                            </button>
+                        </div>
+                        @if (paymentMethod == "vnpay")
+                        {
+                            <div
+                                class="flex flex-col items-center justify-center py-6 text-center animate-fade-in bg-blue-50 rounded-lg bg-emerald-50 border border-blue-100">
+                                <div class="mb-3">
+                                    @* Icon minh họa VNPAY hoặc Redirect *@
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-emerald-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-sm font-bold text-gray-900">Thanh toán qua VNPAY</h3>
+                                <p class="text-sm text-gray-500 mt-2 max-w-xs">
+                                    Bạn sẽ được chuyển hướng đến cổng thanh toán VNPAY để hoàn tất giao dịch an toàn.
+                                </p>
+                                <div class="mt-4 flex gap-2">
+                                    @* Minh họa các loại thẻ hỗ trợ *@
+                                    <span
+                                        class="text-xs bg-white border border-emerald-700 px-2 py-1 rounded text-emerald-700">ATM
+                                        Nội địa</span>
+                                    <span
+                                        class="text-xs bg-white border border-emerald-700 px-2 py-1 rounded text-emerald-700">QR
+                                        Code</span>
+                                    <span
+                                        class="text-xs bg-white border border-emerald-700 px-2 py-1 rounded text-emerald-700">Visa/Master</span>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div
+                                class="flex flex-col items-center justify-center py-6 text-center animate-fade-in bg-emerald-50 rounded-lg border border-emerald-100">
+                                <h3 class="text-sm font-bold text-gray-900">Thanh toán khi nhận hàng</h3>
+                                <p class="text-sm text-gray-500 mt-1 max-w-xs">Bạn sẽ thanh toán bằng tiền mặt khi nhận được
+                                    kiện hàng.</p>
+                            </div>
+                        }
+                    </div>
+                </section>
+            </div>
+
+            @* === CỘT PHẢI === *@
+            <div class="lg:col-span-5 xl:col-span-4">
+                <div class="sticky top-8 space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                        <div class="p-6 bg-gray-50 border-b">
+                            <h3 class="font-bold">Đơn hàng của bạn</h3>
+                        </div>
+
+                        <div class="p-6 space-y-6">
+                            <div class="space-y-4 max-h-[250px] overflow-y-auto pr-2 border p-2 rounded-lg">
+                                @foreach (var item in cartItems)
+                                {
+                                    <div class="flex gap-4">
+                                        <img src="@item.ProductImg" class="h-16 w-16 object-contain border rounded" />
+                                        <div class="flex-1">
+                                            <p class="font-medium">@item.ProductName</p>
+                                            <p class="text-xs text-gray-500">x @item.Quantity</p>
+                                        </div>
+                                        <p class="font-semibold">@((item.Price * item.Quantity).ToString("N0")) ₫</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <hr />
+
+                            <div class="flex justify-between text-gray-500">
+                                <span>Tạm tính</span>
+                                <span>@SubTotal.ToString("N0") ₫</span>
+                            </div>
+
+                            @* Form Mã giảm giá *@
+                            <div class="pt-4 pb-2">
+                                <label for="promo"
+                                    class="block text-xs font-medium text-gray-700 mb-2 uppercase tracking-wide">Mã giảm
+                                    giá</label>
+                                <div class="">
+                                    @if (availablePromotions?.Count > 0)
+                                    {
+                                        <select id="discountSelect"
+                                            class="w-full p-2 rounded-lg border-gray-300 bg-gray-50 text-sm focus:ring-blue-500 text-gray-900 p-1 outline-none border"
+                                            @onchange="OnSelectPromotion">
+                                            <option value="">-- Chọn mã giảm giá --</option>
+
+                                            @foreach (var p in availablePromotions)
+                                            {
+                                                <option value="@p.PromoId">
+                                                    @p.PromoCode - Giảm @(p.DiscountValue.ToString("N0")) ₫
+                                                </option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-gray-500 text-sm italic">Hiện không có mã giảm giá</p>
+                                    }
+                                    @if (!string.IsNullOrEmpty(selectedPromoMessage))
+                                    {
+                                        <p class="text-emerald-600 text-sm mt-2">
+                                            @selectedPromoMessage
+                                        </p>
+                                    }
+
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            @if (appliedDiscount > 0)
+                            {
+                                <div class="flex justify-between text-gray-500">
+                                    <span>Giảm giá</span>
+                                    <span class="text-red-500 font-semibold">-@appliedDiscount.ToString("N0") ₫</span>
+                                </div>
+                            }
+
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="font-bold">Tổng cộng</span>
+                                <span class="text-2xl font-bold text-emerald-600">
+                                    @TotalAfterDiscount.ToString("N0") ₫
+                                </span>
+                            </div>
+
+                            <button @onclick="HandlePayment"
+                                class="w-full bg-emerald-600 text-white font-bold py-4 rounded-lg hover:bg-emerald-500 transition">
+                                Thanh toán ngay
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @* MODAL *@
+    @if (isModalOpen)
+    {
+        <div class="fixed inset-0 bg-black/50 z-50" @onclick="CloseModal"></div>
+
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                <div class="flex justify-between mb-4">
+                    <h3 class="text-xl font-bold">
+                        @(modalType == "contact" ? "Sửa thông tin liên hệ" : "Sửa địa chỉ")
+                    </h3>
+                    <button @onclick="CloseModal">X</button>
+                </div>
+                <p class="text-red-500 my-2">@errorMessage</p>
+
+                @if (modalType == "contact")
+                {
+                    <div class="space-y-4">
+                        <input class="w-full p-2 border rounded" @bind="tempName" placeholder="Họ tên" />
+                        <input class="w-full p-2 border rounded" @bind="tempEmail" placeholder="Email" />
+                        <input class="w-full p-2 border rounded" @bind="tempPhone" placeholder="SĐT" />
+                    </div>
+                }
+                else
+                {
+                    <div class="space-y-4">
+                        <select class="w-full p-2 border rounded" @onchange="OnProvinceChanged">
+                            <option value="">-- Chọn tỉnh --</option>
+                            @foreach (var p in provinces)
+                            {
+                                <option value="@p.code">@p.name</option>
+                            }
+                        </select>
+
+                        <select disabled="@(selectedProvinceObj == null)" class="w-full p-2 border rounded"
+                            @onchange="OnDistrictChanged">
+                            <option value="">-- Chọn huyện --</option>
+                            @foreach (var d in districts)
+                            {
+                                <option value="@d.code">@d.name</option>
+                            }
+                        </select>
+
+                        <select disabled="@(selectedDistrictObj == null)" class="w-full p-2 border rounded"
+                            @onchange="OnWardChanged">
+                            <option value="">-- Chọn xã --</option>
+                            @foreach (var w in wards)
+                            {
+                                <option value="@w.code">@w.name</option>
+                            }
+                        </select>
+
+                        <input class="w-full p-2 border rounded" @bind="street" placeholder="Tên đường, số nhà" />
+                    </div>
+                }
+
+                <div class="flex gap-3 mt-4">
+                    <button class="flex-1 border py-2 rounded" @onclick="CloseModal">Hủy</button>
+                    <button class="flex-1 bg-emerald-600 text-white py-2 rounded" @onclick="SaveInfo">
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CartItem> cartItems = new();
+    private decimal SubTotal => cartItems.Sum(x => x.Price * x.Quantity);
+    private string promoInput = "";
+    private List<PromotionResponse> availablePromotions = new();
+    private string selectedPromoMessage = "";
+    private CustomerInfo? currentCustomer;
+    private string paymentMethod = "cod";
+    private bool isModalOpen;
+    private string modalType = "";
+    private decimal appliedDiscount = 0;
+    private decimal TotalAfterDiscount => SubTotal - appliedDiscount;
+
+    private string tempName;
+    private string tempEmail;
+    private string tempPhone;
+    private string street;
+    private string errorMessage = "";
+
+    private List<Province> provinces = new();
+    private List<District> districts = new();
+    private List<Ward> wards = new();
+
+    private Province? selectedProvinceObj;
+    private District? selectedDistrictObj;
+    private Ward? selectedWardObj;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems = await CartService.GetCart();
+
+        provinces = await client.GetFromJsonAsync<List<Province>>(
+        "https://provinces.open-api.vn/api/?depth=3"
+        );
+
+        await LoadPromotions();
+    }
+
+    private void OpenModal(string type)
+    {
+        modalType = type;
+
+        if (type == "contact" && currentCustomer != null)
+        {
+            tempName = currentCustomer.Name;
+            tempEmail = currentCustomer.Email;
+            tempPhone = currentCustomer.Phone;
+        }
+
+        if (type == "address")
+        {
+            // Reset chọn lại
+            selectedProvinceObj = null;
+            selectedDistrictObj = null;
+            selectedWardObj = null;
+
+            districts.Clear();
+            wards.Clear();
+            street = "";
+        }
+
+        isModalOpen = true;
+    }
+
+    private void CloseModal() => isModalOpen = false;
+
+    private void OnProvinceChanged(ChangeEventArgs e)
+    {
+        int code = int.Parse(e.Value.ToString());
+        selectedProvinceObj = provinces.FirstOrDefault(x => x.code == code);
+
+        districts = selectedProvinceObj?.districts ?? new();
+        wards.Clear();
+        selectedDistrictObj = null;
+        selectedWardObj = null;
+    }
+
+    private void OnDistrictChanged(ChangeEventArgs e)
+    {
+        int code = int.Parse(e.Value.ToString());
+        selectedDistrictObj = districts.FirstOrDefault(x => x.code == code);
+
+        wards = selectedDistrictObj?.wards ?? new();
+        selectedWardObj = null;
+    }
+
+    private void OnWardChanged(ChangeEventArgs e)
+    {
+        int code = int.Parse(e.Value.ToString());
+        selectedWardObj = wards.FirstOrDefault(x => x.code == code);
+    }
+
+    private async Task SaveInfo()
+    {
+        string fullAddress = "";
+
+        // Chỉ ghép địa chỉ khi tất cả đều hợp lệ
+        if (!string.IsNullOrWhiteSpace(street) &&
+        selectedProvinceObj != null &&
+        selectedDistrictObj != null &&
+        selectedWardObj != null)
+        {
+            fullAddress =
+            $"{street}, {selectedWardObj.name}, {selectedDistrictObj.name}, {selectedProvinceObj.name}";
+        }
+
+
+
+        if (currentCustomer == null)
+        {
+            if (string.IsNullOrWhiteSpace(tempName) && modalType == "contact")
+            {
+                errorMessage = "Vui lòng nhập họ tên.";
+                return;
+            }
+
+            // Validate Email
+            if ((string.IsNullOrWhiteSpace(tempEmail) ||
+            !Regex.IsMatch(tempEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$")) && modalType == "contact")
+            {
+                errorMessage = "Email không hợp lệ.";
+                return;
+            }
+
+            // Validate Phone (0xxxxxxxxx hoặc +84xxxxxxxxx)
+            if ((string.IsNullOrWhiteSpace(tempPhone) ||
+            !Regex.IsMatch(tempPhone, @"^(0|\+84)[0-9]{9}$")) && modalType == "contact")
+            {
+                errorMessage = "Số điện thoại không hợp lệ.";
+                return;
+            }
+
+
+            currentCustomer = new CustomerInfo
+            {
+                Name = tempName,
+                Email = tempEmail,
+                Phone = tempPhone,
+                Address = fullAddress
+            };
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(tempName) && modalType == "contact")
+            {
+                errorMessage = "Vui lòng nhập họ tên.";
+                return;
+            }
+
+            // Validate Email
+            if ((string.IsNullOrWhiteSpace(tempEmail) ||
+            !Regex.IsMatch(tempEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]+$")) && modalType == "contact")
+            {
+                errorMessage = "Email không hợp lệ.";
+                return;
+            }
+
+            // Validate Phone (0xxxxxxxxx hoặc +84xxxxxxxxx)
+            if ((string.IsNullOrWhiteSpace(tempPhone) ||
+            !Regex.IsMatch(tempPhone, @"^(0|\+84)[0-9]{9}$")) && modalType == "contact")
+            {
+                errorMessage = "Số điện thoại không hợp lệ.";
+                return;
+            }
+            currentCustomer.Name = tempName;
+            currentCustomer.Email = tempEmail;
+            currentCustomer.Phone = tempPhone;
+            currentCustomer.Address = fullAddress;
+        }
+
+        isModalOpen = false;
+        errorMessage = "";
+
+    }
+
+    private async Task HandlePayment()
+    {
+
+        if (currentCustomer == null || string.IsNullOrWhiteSpace(currentCustomer.Name) ||
+        string.IsNullOrWhiteSpace(currentCustomer.Email) ||
+        string.IsNullOrWhiteSpace(currentCustomer.Phone))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập thông tin liên hệ.");
+            modalType = "contact";
+            isModalOpen = true;
+            return;
+        }
+        if (
+        string.IsNullOrWhiteSpace(currentCustomer.Address))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập địa chỉ giao hàng.");
+            modalType = "address";
+            isModalOpen = true;
+            return;
+        }
+
+        // 2. Gọi hàm tách riêng để lưu khách hàng
+        int? customerId = await SaveCustomerAsync();
+
+        if (customerId == null)
+        {
+            // đã báo lỗi trong hàm SaveCustomerAsync()
+            return;
+        }
+
+        await JS.InvokeVoidAsync("alert", "Lưu thông tin khách hàng thành công");
+
+        // 3. Tạo đơn hàng
+        OrderResponse createdOrder = await CreateOrderAsync(customerId.Value);
+        if (createdOrder == null)
+            return;
+        await JS.InvokeVoidAsync("alert", $"Tạo đơn hàng thành công! Mã đơn hàng: {createdOrder.OrderId}");
+
+        if (paymentMethod == "vnpay")
+        {
+            await CreateVnPayPayment(createdOrder.OrderId, createdOrder.TotalAmount, currentCustomer.Name);
+        }
+
+        else
+        {
+            // Clear cart trước
+            await CartService.ClearCart();
+            StateHasChanged();
+
+            // Dùng JS để alert + redirect cùng lúc
+            await JS.InvokeVoidAsync("eval", $@"
+alert('Bạn đã chọn thanh toán khi nhận hàng (COD). Vui lòng chuẩn bị tiền mặt khi nhận hàng.');
+window.location.href = '/payment-success?orderId={createdOrder.OrderId}';
+");
+        }
+
+
+    }
+
+
+
+    private async Task RedirectToVnpay(string vnpayUrl)
+    {
+        await JS.InvokeVoidAsync("open", vnpayUrl, "_blank");
+    }
+
+    private async Task<int?> SaveCustomerAsync()
+    {
+        // Validate FE tránh gửi rác lên BE
+        if (currentCustomer == null)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(currentCustomer.Name) ||
+        string.IsNullOrWhiteSpace(currentCustomer.Email) ||
+        string.IsNullOrWhiteSpace(currentCustomer.Phone))
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(currentCustomer.Address))
+        {
+            return null;
+        }
+
+        var request = new CustomerRequest
+        {
+            Name = currentCustomer.Name,
+            Phone = currentCustomer.Phone,
+            Email = currentCustomer.Email,
+            Address = currentCustomer.Address
+        };
+
+
+        try
+        {
+            var response = await customerApi.AddAsync(request);
+
+            if (response == null || response.Data == null || !response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Không thể lưu khách hàng. Vui lòng thử lại.");
+                return null;
+            }
+
+            return response.Data.CustomerId;
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", "Lỗi kết nối khi lưu khách hàng.");
+            Console.WriteLine(ex);
+            return null;
+        }
+    }
+
+
+
+    private async Task LoadPromotions()
+    {
+        decimal orderTotal = SubTotal;
+        string orderTotalStr = orderTotal.ToString("0", CultureInfo.InvariantCulture);
+        var result = await promotionApi.GetApplicablePromotionsAsync(orderTotalStr);
+
+        if (result != null && result.Data != null)
+        {
+            Console.WriteLine(result.Data.ToString());
+            availablePromotions = result.Data;
+        }
+    }
+
+    private void OnSelectPromotion(ChangeEventArgs e)
+    {
+        var promoId = e.Value?.ToString();
+
+        appliedDiscount = 0;
+        selectedPromoMessage = "";
+
+        if (string.IsNullOrWhiteSpace(promoId))
+            return;
+
+        var selectedPromo = availablePromotions.FirstOrDefault(p => p.PromoId.ToString() == promoId);
+
+        if (selectedPromo == null)
+            return;
+
+        promoInput = selectedPromo.PromoId.ToString();
+
+        appliedDiscount = selectedPromo.DiscountValue;
+
+        selectedPromoMessage =
+        $"Đã áp dụng mã: {selectedPromo.PromoCode} (giảm {appliedDiscount.ToString("N0")} ₫)";
+    }
+
+    private async Task<OrderResponse> CreateOrderAsync(int customerId)
+    {
+        var request = new CreateOrderRequest
+        {
+            CustomerId = customerId,
+            UserId = null, // Nếu không dùng User thì để null
+            PromoId = int.TryParse(promoInput, out var id) ? id : null,
+            Items = cartItems.Select(item => new OrderItemRequest
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity
+            }).ToList()
+        };
+
+        try
+        {
+            var response = await orderApi.AddAsync(request);
+
+            if (response == null || response.Data == null || !response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Không thể tạo đơn hàng.");
+                return null;
+            }
+
+            return response.Data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            await JS.InvokeVoidAsync("alert", "Lỗi kết nối khi tạo đơn hàng.");
+            return null;
+        }
+    }
+
+    private async Task CreateVnPayPayment(int orderId, decimal amount, string customerName)
+    {
+        try
+        {
+            var paymentRequest = new PaymentInformationDto
+            {
+                OrderId = orderId,
+                OrderType = "billpayment",
+                Amount = (double)amount,
+                OrderDescription = $"Thanh toán đơn hàng #{orderId}",
+                Name = customerName
+            };
+
+            var response = await paymentApi.CreateVnPayAsync(paymentRequest);
+
+            if (response == null || response.Data == null || string.IsNullOrWhiteSpace(response.Data.PaymentUrl))
+            {
+                await JS.InvokeVoidAsync("alert", "Không tạo được đường dẫn thanh toán");
+                return;
+            }
+
+            var paymentUrl = response.Data.PaymentUrl;
+
+            // Popup VNPay
+            await JS.InvokeVoidAsync("openPopup", paymentUrl);
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Lỗi khi tạo thanh toán VNPay: {ex.Message}");
+        }
+    }
+}

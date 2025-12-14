@@ -1,2 +1,152 @@
 ﻿@page "/admin/orders"
-<h3>Quản lý đơn hàng</h3>
+@using frontendblazor.Models
+@using frontendblazor.Services
+
+@inject NavigationManager Nav
+@inject OrderApi orderrApi
+
+<h3 class="text-2xl font-semibold mb-3">Quản lý đơn hàng</h3>
+
+<div class="flex items-center gap-3">
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm đơn hàng..."
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+    </div>
+</div>
+
+
+<!-- Bảng danh sách -->
+<div class="overflow-x-auto bg-white shadow-lg border rounded-xl mt-4">
+    <table class="min-w-full border-collapse">
+        <thead class="bg-gray-100 border-b">
+            <tr>
+                <th class="px-4 py-2 text-left font-medium">Tên khách hàng</th>
+                <th class="px-4 py-2 text-left font-medium">Người tạo đơn</th>
+                <th class="px-4 py-2 text-left font-medium">Mã giảm giá</th>
+                <th class="px-4 py-2 text-left font-medium">Ngày tạo</th>
+                <th class="px-4 py-2 text-left font-medium">Trạng thái</th>
+                <th class="px-4 py-2 text-left font-medium">Số tiền giảm giá</th>
+                <th class="px-4 py-2 text-left font-medium">Tổng tiền</th>
+                <th class="px-4 py-2 text-left font-medium">Xem chi tiết</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (orders != null)
+            {
+                @foreach (var item in PagedOrders)
+                {
+                    <tr>
+                        <td class="px-4 py-2">@item.CustomerName</td>
+                        <td class="px-4 py-2">@item.UserName</td>
+                        @if (@item.PromoCode != null)
+                        {
+                            <td class="px-4 py-2">@item.PromoCode</td>
+                        }
+                        else
+                        {
+                            <td class="px-4 py-2">none</td>
+                        }
+                        <td class="px-4 py-2">@item.OrderDate</td>
+                        @if (item.Status == "paid")
+                        {
+                            <td class="px-4 py-2">
+                                <span style="
+                        background:#d1fae5; 
+                        color:#065f46; 
+                        padding:4px 10px; 
+                        border-radius:8px; 
+                        font-weight:bold;
+                        font-size:14px;">
+                                    Đã thanh toán
+                                </span>
+                            </td>
+                        }
+                        else
+                        {
+                            <td class="px-4 py-2">
+                                <span style="
+                        background:#fef3c7; 
+                        color:#92400e; 
+                        padding:4px 10px; 
+                        border-radius:8px; 
+                        font-weight:bold;
+                        font-size:14px;">
+                                    Chờ thanh toán
+                                </span>
+                            </td>
+                        }
+
+
+
+
+                        <td class="px-4 py-2">@item.DiscountAmount</td>
+                        <td class="px-4 py-2">@item.TotalAmount</td>
+                        <td class="px-4 py-2">
+                            <button
+                                class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1" @onclick="() => ViewOrder(item.OrderId)">
+                                <i class="bi bi-receipt" style="font-size:30px; color:green"></i> Xem hóa đơn
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="flex justify-center items-center gap-3 mt-4">
+    <button class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50" @onclick="PrevPage"
+        disabled="@(currentPage == 1)">
+        <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <span>Trang @currentPage / @totalPages</span>
+
+    <button class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50" @onclick="NextPage"
+        disabled="@(currentPage == totalPages)">
+        <i class="bi bi-chevron-right"></i>
+    </button>
+</div>
+
+@code {
+    private List<OrderResponse> orders = new List<OrderResponse>();
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)orders.Count / pageSize);
+
+    private IEnumerable<OrderResponse> PagedOrders =>
+    orders.Skip((currentPage - 1) * pageSize).Take(pageSize);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        var getOrdersResponse = await orderrApi.GetAllAsync();
+
+        if (getOrdersResponse != null && getOrdersResponse.Data != null)
+        {
+            orders = getOrdersResponse.Data;
+        }
+    }
+
+    void NextPage()
+    {
+        if (currentPage < totalPages)
+            currentPage++;
+    }
+
+    void PrevPage()
+    {
+        if (currentPage > 1)
+            currentPage--;
+    }
+
+    void ViewOrder(int id)
+    {
+        Nav.NavigateTo($"/admin/order/{id}");
+    }
+
+}

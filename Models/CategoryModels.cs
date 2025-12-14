@@ -2,16 +2,25 @@
 
 namespace frontendblazor.Models;
 
-public sealed record CategoryRequest(
-    [property: JsonPropertyName("username")] string Username,
-    [property: JsonPropertyName("password")] string Password
-);
+public record CategoryRequest
+{
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; set; } = string.Empty;
+}
 
-public sealed record CategoryResponse{
-    
+public record UpdateCategoryRequest
+{
+    [JsonPropertyName("categoryName")]
+    public string CategoryName { get; set; } = string.Empty;
+}
+
+
+public record CategoryResponse
+{
+
     [JsonPropertyName("categoryId")]
     public int CategoryId { get; init; }
-    
+
     [JsonPropertyName("categoryName")]
     public string CategoryName { get; init; }
 

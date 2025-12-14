@@ -1,0 +1,80 @@
+@page "/admin/categories/update/{Id:int}"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@inject IJSRuntime JS
+
+@inject CategoryApi CategoryApi
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Sửa danh mục</h2>
+
+    <EditForm Model="NewCategory" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @* <ValidationSummary /> *@
+
+        <div>
+            <label>Tên khách</label>
+            <InputText @bind-Value="NewCategory.CategoryName" class="w-full border rounded px-2 py-1" />
+            <div class="text-red-600 text-sm mt-1">
+                <ValidationMessage For="@(() => NewCategory.CategoryName)" />
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sửa danh
+                mục</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500"
+                @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+
+
+    private CategoryRequest NewCategory = new CategoryRequest
+    {
+        CategoryName = ""
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiResponse<CategoryResponse>? category = await CategoryApi.GetByIdAsync(Id);
+
+        if (category != null)
+        {
+            NewCategory = new CategoryRequest
+            {
+                CategoryName = category.Data.CategoryName,
+            };
+        }
+    }
+
+    private void Cancel()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/categories", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await CategoryApi.UpdateAsync(NewCategory, Id);
+
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Sửa danh mục thành công!");
+
+            // Sửa xong quay về danh sách
+            Nav.NavigateTo("/admin/categories", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Sửa danh mục thất bại!");
+        }
+    }
+}

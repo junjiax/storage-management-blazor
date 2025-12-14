@@ -1,0 +1,42 @@
+@namespace frontendblazor.Components.Home
+<section class="bg-slate-50 rounded-xl border p-4 md:p-6 reveal-on-scroll">
+	<div class="flex items-center justify-between mb-4">
+		<h2 class="text-lg md:text-xl font-semibold">Đánh giá của khách hàng</h2>
+		<div class="flex items-center gap-2">
+			<button class="h-8 w-8 rounded-full border flex items-center justify-center hover:bg-white">←</button>
+			<button class="h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center hover:bg-emerald-700">→</button>
+		</div>
+	</div>
+	<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+		@foreach (var t in testimonials)
+		{
+			<div class="bg-white rounded-xl border p-4">
+				<div class="text-emerald-600 text-xl mb-2">“</div>
+				<p class="text-sm text-slate-700 leading-relaxed">@t.Message</p>
+				<div class="mt-4 flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<img class="h-8 w-8 rounded-full object-cover" src="@t.AvatarUrl" alt="@t.Name" />
+						<div class="text-xs">
+							<div class="font-medium text-slate-900">@t.Name</div>
+							<div class="text-slate-500">Khách hàng</div>
+                        </div>
+					</div>
+					<div class="text-amber-400 text-sm">★★★★★</div>
+				</div>
+			</div>
+		}
+	</div>
+</section>
+
+@code {
+	private sealed record TestimonialVm(string Name, string Message, string AvatarUrl);
+
+	private readonly List<TestimonialVm> testimonials = new()
+	{
+		new("Robert Fox", "Dịch vụ rất tốt, giao hàng nhanh và sản phẩm đúng như mô tả. Sẽ tiếp tục ủng hộ!", "icon-192.png"),
+		new("Dianne Russell", "Sản phẩm tươi ngon, đóng gói cẩn thận. Giá cả hợp lý, đáng tiền.", "icon-192.png"),
+		new("Eleanor Pena", "Trải nghiệm mua sắm mượt mà, đội ngũ hỗ trợ phản hồi nhanh.", "icon-192.png"),
+	};
+}
+
+

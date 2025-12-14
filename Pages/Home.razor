@@ -1,7 +1,53 @@
 ﻿@page "/"
+@page "/home"
+@inject frontendblazor.Services.ProductApi productApi
+@inject frontendblazor.Services.CategoryApi categoryApi
+@using frontendblazor.Components.Home
+@using frontendblazor.Models
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Trang chủ</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
+    <HeroBanner ImageUrl="images/BannarBig.png" />
+    <ServiceHighlights />
+    <CategoryGrid Title="Danh mục phổ biến" Items="@categories" />
+    <ProductGrid Title="Sản phẩm phổ biến" Items="@popularProducts" PageSize="10" />
+    <Testimonials />
+</div>
 
-Welcome to your new app.
+@code {
+    private List<ProductItemVm> popularProducts = new();
+    private List<CategoryItemVm> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load Categories
+        var categoryResponse = await categoryApi.GetAllAsync();
+        if (categoryResponse?.Success == true && categoryResponse.Data is not null)
+        {
+            categories = categoryResponse.Data
+            .Select(c => new CategoryItemVm(c.CategoryId, c.CategoryName))
+            .ToList();
+        }
+
+        // Load Products
+        var response = await productApi.GetAllAsync();
+        // Load Products
+
+        if (response?.Success == true && response.Data is not null)
+        {
+            popularProducts = response.Data
+            .Select(p => new ProductItemVm(
+            p.ProductId ?? 0, // 👈 BẠN ĐÃ THÊM TRƯỜNG NÀY → PHẢI TRUYỀN VÀO
+            p.ProductName,
+            p.ProductImg ?? "",
+            p.Price,
+            null, // OldPrice
+            (p.CurrentStock ?? 0) > 0, // InStock: true/false
+            p.ProductId > 0 ? "Hot" : null // Badge
+            ))
+            .ToList();
+        }
+
+    }
+}
