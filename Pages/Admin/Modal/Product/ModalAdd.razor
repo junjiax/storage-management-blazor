@@ -1,8 +1,9 @@
 @page "/admin/products/add"
+
 @using frontendblazor.Models
 @using frontendblazor.Services
-@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Forms
+
 @inject ProductApi ProductApi
 @inject CategoryApi CategoryApi
 @inject SupplierApi SupplierApi
@@ -15,78 +16,93 @@
     <EditForm Model="NewProduct" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
 
-        <div>
+        <!-- Danh mục -->
+        <div class="mb-3">
             <label>Danh mục</label>
-            <select @bind="NewProduct.CategoryId" class="w-full border rounded px-2 py-1">
-                <option value="0" disabled selected>-- Chọn danh mục --</option>
-
+            <select class="w-full border rounded px-2 py-1"
+                    @bind="NewProduct.CategoryId">
+                <option value="">-- Chọn danh mục --</option>
                 @foreach (var category in categories)
                 {
-                    <option value="@category.CategoryId">@category.CategoryName</option>
+                    <option value="@category.CategoryId">
+                        @category.CategoryName
+                    </option>
                 }
             </select>
         </div>
 
-        <div>
+        <!-- Nhà cung cấp -->
+        <div class="mb-3">
             <label>Nhà cung cấp</label>
-            <select @bind="NewProduct.SupplierId" class="w-full border rounded px-2 py-1">
-                <option value="0" disabled selected>-- Chọn nhà cung cấp --</option>
-
+            <select class="w-full border rounded px-2 py-1"
+                    @bind="NewProduct.SupplierId">
+                <option value="">-- Chọn nhà cung cấp --</option>
                 @foreach (var supplier in suppliers)
                 {
-                    <option value="@supplier.SupplierId">@supplier.Name</option>
+                    <option value="@supplier.SupplierId">
+                        @supplier.Name
+                    </option>
                 }
             </select>
         </div>
 
-        <div>
+        <!-- Tên sản phẩm -->
+        <div class="mb-3">
             <label>Tên sản phẩm</label>
-            <InputText @bind-Value="NewProduct.ProductName" class="w-full border rounded px-2 py-1" />
+            <InputText class="w-full border rounded px-2 py-1"
+                       @bind-Value="NewProduct.ProductName" />
             <ValidationMessage For="@(() => NewProduct.ProductName)" />
         </div>
 
-        <div>
+        <!-- Barcode -->
+        <div class="mb-3">
             <label>Barcode</label>
-            <InputText @bind-Value="NewProduct.Barcode" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage For="@(() => NewProduct.Barcode)" />
+            <InputText class="w-full border rounded px-2 py-1"
+                       @bind-Value="NewProduct.Barcode" />
         </div>
 
-        <div>
+        <!-- Giá -->
+        <div class="mb-3">
             <label>Giá</label>
-            <InputNumber @bind-Value="NewProduct.Price" class="w-full border rounded px-2 py-1" />
+            <InputNumber class="w-full border rounded px-2 py-1"
+                         @bind-Value="NewProduct.Price" />
             <ValidationMessage For="@(() => NewProduct.Price)" />
         </div>
 
-        <div>
+        <!-- Đơn vị -->
+        <div class="mb-3">
             <label>Đơn vị tính</label>
-            <InputText @bind-Value="NewProduct.Unit" class="w-full border rounded px-2 py-1" />
-            <ValidationMessage For="@(() => NewProduct.Unit)" />
+            <InputText class="w-full border rounded px-2 py-1"
+                       @bind-Value="NewProduct.Unit" />
         </div>
 
-        <div>
+        <!-- Upload ảnh -->
+        <div class="mb-3">
             <label class="font-medium">Hình ảnh</label>
-            <InputFile OnChange="HandleFileUpload" accept="image/*" class="w-full border rounded px-2 py-1" />
-
-            @if (!string.IsNullOrEmpty(NewProduct.ProductImg))
-            {
-                <div class="mt-3 flex justify-center">
-                    <img src="data:image/jpeg;base64,@NewProduct.ProductImg"
-                        class="w-40 h-40 object-cover rounded-lg shadow border" />
-                </div>
-            }
-
+            <InputFile OnChange="HandleFileUpload"
+                       accept="image/*"
+                       class="w-full border rounded px-2 py-1" />
 
             @if (!string.IsNullOrEmpty(uploadError))
             {
-                <div class="mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                <div class="mt-2 text-red-600">
                     @uploadError
                 </div>
             }
         </div>
 
+        <!-- Buttons -->
         <div class="flex justify-end gap-3 mt-4">
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Thêm</button>
-            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded" @onclick="Cancel">Hủy</button>
+            <button type="submit"
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Thêm
+            </button>
+
+            <button type="button"
+                    class="bg-red-500 text-white px-4 py-2 rounded"
+                    @onclick="Cancel">
+                Hủy
+            </button>
         </div>
     </EditForm>
 </div>
@@ -94,19 +110,13 @@
 @code {
     private List<CategoryResponse> categories = new();
     private List<SupplierResponse> suppliers = new();
+
     private string uploadError = string.Empty;
 
-    private ProductRequest NewProduct = new()
+    private ProductWithUploadImgRequest NewProduct = new()
     {
-        CategoryId = 0,
-        SupplierId = 0,
-        ProductName = "",
-        Barcode = "",
-        Price = 0,
-        Unit = "",
-        ProductImg = ""
+        Unit = "pcs"
     };
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,13 +129,12 @@
 
     private async Task HandleValidSubmit()
     {
-        Console.WriteLine("Submitting form with product:");
-        Console.WriteLine(NewProduct);
         var response = await ProductApi.AddAsync(NewProduct);
+
         if (response?.Success == true)
         {
             await JS.InvokeVoidAsync("alert", "Thêm sản phẩm thành công!");
-            Cancel();
+            Nav.NavigateTo("/admin/products", true);
         }
         else
         {
@@ -133,40 +142,31 @@
         }
     }
 
-    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    private void HandleFileUpload(InputFileChangeEventArgs e)
     {
-        try
+        var file = e.File;
+
+        if (file == null)
+            return;
+
+        if (!file.ContentType.StartsWith("image/"))
         {
-            uploadError = string.Empty;
-
-            var file = e.File;
-            long maxSize = 5 * 1024 * 1024;
-
-            if (file.Size > maxSize)
-            {
-                uploadError = "Ảnh quá lớn, tối đa 5MB.";
-                return;
-            }
-
-            using var stream = file.OpenReadStream(maxSize);
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-
-            var base64 = Convert.ToBase64String(ms.ToArray());
-
-            NewProduct = NewProduct with
-            {
-                ProductImg = base64
-            };
+            uploadError = "Chỉ được chọn file ảnh";
+            return;
         }
-        catch (Exception ex)
+
+        if (file.Size > 5 * 1024 * 1024)
         {
-            uploadError = "Lỗi: " + ex.Message;
+            uploadError = "Ảnh không được vượt quá 5MB";
+            return;
         }
+
+        uploadError = string.Empty;
+        NewProduct.ImageFile = file;
     }
 
     private void Cancel()
     {
-        Nav.NavigateTo("/admin/products", true);
+        Nav.NavigateTo("/admin/products");
     }
 }

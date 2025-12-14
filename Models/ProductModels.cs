@@ -1,37 +1,54 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Components.Forms;
+
 namespace frontendblazor.Models;
 
-using Microsoft.AspNetCore.Http;
+// public record ProductRequest
+// {
+//     [JsonPropertyName("categoryId")]
+//     [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn danh mục.")]
+//     public int CategoryId { get; set; }
 
-public record ProductRequest
+//     [JsonPropertyName("supplierId")]
+//     [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn nhà cung cấp.")]
+//     public int SupplierId { get; set; }
+
+//     [JsonPropertyName("productName")]
+//     [Required, MinLength(2)]
+//     public string ProductName { get; set; } = string.Empty;
+
+//     [JsonPropertyName("barcode")]
+//     [Required]
+//     public string Barcode { get; set; } = string.Empty;
+
+//     [JsonPropertyName("price")]
+//     [Range(1, double.MaxValue)]
+//     public decimal Price { get; set; }
+
+//     [JsonPropertyName("unit")]
+//     [Required]
+//     public string Unit { get; set; } = string.Empty;
+
+//     [JsonPropertyName("productImg")]
+//     public string ProductImg { get; set; } = string.Empty;
+// }
+
+public class ProductWithUploadImgRequest
 {
-    [JsonPropertyName("categoryId")]
-    [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn danh mục.")]
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
-    [JsonPropertyName("supplierId")]
-    [Range(1, int.MaxValue, ErrorMessage = "Vui lòng chọn nhà cung cấp.")]
-    public int SupplierId { get; set; }
+    public int? SupplierId { get; set; }
 
-    [JsonPropertyName("productName")]
-    [Required, MinLength(2)]
     public string ProductName { get; set; } = string.Empty;
 
-    [JsonPropertyName("barcode")]
-    [Required]
-    public string Barcode { get; set; } = string.Empty;
+    public string? Barcode { get; set; }
 
-    [JsonPropertyName("price")]
-    [Range(1, double.MaxValue)]
     public decimal Price { get; set; }
 
-    [JsonPropertyName("unit")]
-    [Required]
-    public string Unit { get; set; } = string.Empty;
+    public string Unit { get; set; } = "pcs";
 
-    [JsonPropertyName("productImg")]
-    public string ProductImg { get; set; } = string.Empty;
+    public IBrowserFile? ImageFile { get; set; }
 }
 
 public record ProductResponse

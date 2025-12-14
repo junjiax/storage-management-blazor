@@ -20,6 +20,9 @@ public sealed class TokenStorage
     public async Task<string?> GetTokenAsync()
         => await jsRuntime.InvokeAsync<string?>("localStorage.getItem", TokenKey);
 
+    public async Task<string?> GetUserInfoAsync()
+        => await jsRuntime.InvokeAsync<string?>("localStorage.getItem", UserInfoKey);
+
     public ValueTask ClearAsync()
         => jsRuntime.InvokeVoidAsync("localStorage.removeItem", TokenKey);
 }

@@ -74,11 +74,15 @@
                             <td class="px-4 py-3 font-medium">@item.UsedCount / @item.UsageLimit</td>
                             <td class="px-4 py-3 font-medium">@item.Status</td>
                             <td class="px-4 py-3 text-center flex justify-center gap-2">
-                                <button class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow"
+                                <button class="px-3 py-1 border border-blue-500 text-blue-600 
+               hover:bg-blue-800 hover:text-white 
+               text-xs rounded-md transition"
                                         @onclick="() => Update(item.PromoId)">
                                     Sửa
                                 </button>
-                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow"
+                                <button class="px-3 py-1 border border-red-500 text-red-600 
+               hover:bg-red-500 hover:text-white 
+               text-xs rounded-md transition"
                                         @onclick="() => ConfirmDelete(item.PromoId)">
                                     Xóa
                                 </button>

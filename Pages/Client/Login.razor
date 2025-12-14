@@ -127,10 +127,18 @@
             Error = res?.Message ?? "Username hoặc mật khẩu không đúng.";
             return;
         }
+
         await TokenStorage.SetTokenAsync(res.Data.Token);
         await TokenStorage.SetUserInfoAsync(System.Text.Json.JsonSerializer.Serialize(res.Data));
         AuthState.NotifyUserAuthenticated();
-        Nav.NavigateTo("/");
+
+        if(res.Data.Role == "admin")
+        {
+            Nav.NavigateTo("/admin/dashboard");
+        }
+        else{
+            Nav.NavigateTo("/");
+        }
     }
 
     public sealed class LoginModel

@@ -15,19 +15,19 @@
     <div class="flex items-center justify-between">
         <h2 class="text-3xl font-bold text-gray-800">Quản lý khách hàng</h2>
 
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition" @onclick="() => Add()">
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition"
+            @onclick="() => Add()">
             + Thêm khách hàng
         </button>
     </div>
 
     <!-- Search -->
     <div class="flex items-center gap-3">
-        <input type="text" placeholder="Tìm kiếm khách hàng..."
-               @bind="searchTerm"
-               class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        <input type="text" placeholder="Tìm kiếm khách hàng..." @bind="searchTerm"
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
 
         <button @onclick="SearchCustomer"
-                class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
+            class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
             Tìm kiếm
         </button>
     </div>
@@ -60,11 +60,16 @@
                             <td class="px-4 py-3 font-medium">@item.Address</td>
                             <td class="px-4 py-3 font-medium">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
                             <td class="px-4 py-3 text-center flex justify-center gap-2">
-                                <button class="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-black rounded-lg text-xs shadow" @onclick="() => Update(item.CustomerId)">
+                                <button class="px-3 py-1 border border-blue-500 text-blue-600 
+               hover:bg-blue-800 hover:text-white 
+               text-xs rounded-md transition"
+                                    @onclick="() => Update(item.CustomerId)">
                                     Sửa
                                 </button>
-                                <button class="px-3 py-1 bg-red-500 hover:bg-red-600 text-black rounded-lg text-xs shadow"
-                                        @onclick="() => ConfirmDelete(item.CustomerId)">
+                                <button class="px-3 py-1 border border-red-500 text-red-600 
+               hover:bg-red-500 hover:text-white 
+               text-xs rounded-md transition"
+                                    @onclick="() => ConfirmDelete(item.CustomerId)">
                                     Xóa
                                 </button>
                             </td>
@@ -89,15 +94,15 @@
             &lt; Trước
         </button>
 
-        @for(int i = 1; i <= totalPages; i++)
+        @for (int i = 1; i <= totalPages; i++)
         {
             int j = i;
-            <button @onclick="(() => GoToPage(j))" 
+            <button @onclick="(() => GoToPage(j))"
                 class="px-3 py-1 rounded-md border 
-                                @(currentPage == i 
-                                    ? "bg-blue-500 text-blue-600 border-blue-900 shadow" 
-                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300")">               
-                                     @i
+                                                        @(currentPage == i
+                                                                                                                                                                       ? "bg-blue-500 text-blue-600 border-blue-900 shadow" 
+                                                                                                                                                                       : "bg-gray-200 text-gray-700 hover:bg-gray-300")">
+                @i
             </button>
         }
 
@@ -117,13 +122,13 @@
     private int currentPage = 1;
     private int pageSize = 10;
     private int totalPages => (int)Math.Ceiling((double)customersFilter.Count / pageSize);
-    
 
 
-    private List<CustomerResponse> PagedCustomers => 
-        customersFilter.Skip((currentPage - 1) * pageSize)
-                         .Take(pageSize)
-                         .ToList();
+
+    private List<CustomerResponse> PagedCustomers =>
+    customersFilter.Skip((currentPage - 1) * pageSize)
+    .Take(pageSize)
+    .ToList();
 
     protected override async Task OnInitializedAsync()
     {
@@ -133,7 +138,7 @@
     private async Task LoadCustomer()
     {
         var response = await CustomerApi.GetAllAsync();
-        if(response?.Data != null)
+        if (response?.Data != null)
         {
             customers = response.Data;
             customersFilter = response.Data;
@@ -142,15 +147,15 @@
 
     private void SearchCustomer()
     {
-       if(customers == null) return;
+        if (customers == null) return;
 
-        customersFilter = string.IsNullOrWhiteSpace(searchTerm) 
+        customersFilter = string.IsNullOrWhiteSpace(searchTerm)
         ? new List<CustomerResponse>(customers)
         : customers
-            .Where(c => (c.Name ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        (c.Email ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        (c.Phone ?? "").Contains(searchTerm))
-            .ToList();
+        .Where(c => (c.Name ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        (c.Email ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        (c.Phone ?? "").Contains(searchTerm))
+        .ToList();
 
 
         currentPage = 1; // reset về trang 1 khi tìm kiếm
@@ -164,12 +169,12 @@
 
     private void NextPage()
     {
-        if(currentPage < totalPages) currentPage++;
+        if (currentPage < totalPages) currentPage++;
     }
 
     private void PrevPage()
     {
-        if(currentPage > 1) currentPage--;
+        if (currentPage > 1) currentPage--;
     }
 
     private void Add()
@@ -183,7 +188,7 @@
         Nav.NavigateTo($"/admin/customers/update/{id}", true);
     }
 
-     private async Task ConfirmDelete(int id)
+    private async Task ConfirmDelete(int id)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa khách hàng id = {id}?");
         if (confirmed)
@@ -195,7 +200,8 @@
                 await LoadCustomer(); // load lại danh sách
                 SearchCustomer();
             }
-            else{
+            else
+            {
                 await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
             }
         }

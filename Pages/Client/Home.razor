@@ -38,7 +38,7 @@
         {
             popularProducts = response.Data
             .Select(p => new ProductItemVm(
-            p.ProductId ?? 0, // 👈 BẠN ĐÃ THÊM TRƯỜNG NÀY → PHẢI TRUYỀN VÀO
+            p.ProductId ?? 0, 
             p.ProductName,
             p.ProductImg ?? "",
             p.Price,
