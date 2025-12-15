@@ -24,9 +24,9 @@ public sealed class OrderApi
         return await apiClient.PostAsync<AddOrderRequest, ApiResponse<OrderResponse>>("orders", request, ct);
     }
 
-    public Task<ApiResponse<OrderResponse>?> UpdateOrderStatusAndInventoryAsync(int id)
+    public Task<ApiResponse<string>?> UpdateOrderStatusAndInventoryAsync(int id)
     {
-        return apiClient.PutAsync<object, ApiResponse<OrderResponse>>(
+        return apiClient.PutAsync<object, ApiResponse<string>>(
             $"orders/{id}",
             new { }
         );

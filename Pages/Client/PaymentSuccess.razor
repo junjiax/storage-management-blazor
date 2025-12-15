@@ -15,18 +15,104 @@
             </div>
         </div>
 
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Thanh toán thành công!</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Đặt hàng thành công!</h2>
 
         @if (order == null)
         {
             <p class="text-gray-600">Đang tải thông tin đơn hàng...</p>
         }
         else
-        {
-            <div class="bg-gray-50 rounded-xl p-4 mt-6 text-left space-y-1">
-                <p><span class="font-semibold">Mã đơn hàng:</span> <strong class="text-emerald-700">@order.OrderId</strong></p>
-                <p><span class="font-semibold">Tổng thanh toán:</span><strong class="text-emerald-700"> @(order.TotalAmount.ToString("N0")) đ</strong></p>
-                <p><span class="font-semibold">Mã giảm giá:</span><strong class="text-emerald-700"> @(order.PromoId != null ? order.PromoId : " Không có giảm giá")</strong></p>
+       {
+            <div class="bg-gray-50 rounded-xl p-4 mt-6 space-y-4 text-left">
+
+                <!-- THÔNG TIN ĐƠN -->
+                <div class="space-y-3">
+                    <p>
+                        <span class="font-semibold">Mã đơn hàng:</span>
+                        <strong class="text-emerald-700"> #@order.OrderId</strong>
+                    </p>
+
+                    <p>
+                        <span class="font-semibold">Ngày đặt:</span>
+                        <strong class="text-emerald-700">
+                            @order.OrderDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </strong>
+                    </p>
+                       @if (order.Payment != null)
+                        {
+                            <p>
+                                <span class="font-semibold">Phương thức thanh toán:</span>
+                                <strong class="text-emerald-700 py-1 px-2 rounded-lg">
+                                    @(order.Payment.PaymentMethod == "bank_transfer"
+                                        ? "VNPAY"
+                                        : "COD")
+                                </strong>
+                            </p>
+                        }else {
+                             <p>
+                                <span class="font-semibold">Phương thức thanh toán:</span>
+                                <strong class="text-emerald-700 py-1 px-2 rounded-lg">
+                                    COD
+                                </strong>
+                            </p>
+                        }
+                    <p>
+                        <span class="font-semibold">Trạng thái:</span>
+                        <strong class="px-2 py-1 rounded text-sm
+                            @(order.Status == "paid"
+                                ? "bg-green-100 text-emerald-700"
+                                : "bg-yellow-100 text-yellow-700")">
+                             @(order.Status == "paid"
+                                 ? "Đã thanh toán"
+                                 : "Chưa thanh toán")
+                        </strong>
+                    </p>
+                </div>
+
+                <hr />
+
+                <!-- DANH SÁCH SẢN PHẨM -->
+                <div>
+                    <h3 class="font-semibold mb-2">Sản phẩm đã đặt</h3>
+
+                    @foreach (var item in order.Items)
+                    {
+                        <div class="flex justify-between text-sm py-1 border-b">
+                            <div>
+                                <p class="font-medium">@item.ProductName</p>
+                                <p class="text-gray-500">
+                                    @item.Quantity × @item.Price.ToString("N0") đ
+                                </p>
+                            </div>
+
+                            <p class="font-semibold">
+                                @item.Subtotal.ToString("N0") đ
+                            </p>
+                        </div>
+                    }
+                </div>
+
+                <hr />
+
+                <!-- TỔNG TIỀN -->
+                <div class="space-y-1 text-sm">
+                    <div class="flex justify-between">
+                        <span>Tạm tính</span>
+                        <span>@order.TotalAmount.ToString("N0") đ</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <span>Giảm giá</span>
+                        <span>-@order.DiscountAmount.ToString("N0") đ</span>
+                    </div>
+
+                    <div class="flex justify-between font-bold text-base text-emerald-700">
+                        <span>Tổng thanh toán</span>
+                        <span>
+                            @( (order.TotalAmount - order.DiscountAmount).ToString("N0") ) đ
+                        </span>
+                    </div>
+                </div>
             </div>
         }
         <button 
@@ -60,6 +146,11 @@
                 }
 
                 order = response.Data;
+
+                if (order.Status == "pending")
+                {
+                    await UpdateCodOrderAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -69,7 +160,35 @@
             }
         }
     }
-    
+    private async Task UpdateCodOrderAsync()
+    {
+        try
+        {
+            var result = await orderApi
+                .UpdateOrderStatusAndInventoryAsync(order.OrderId);
+
+            if (result != null && result.Success)
+            {
+                // update UI luôn
+                order.Status = "paid";
+            }
+            else
+            {
+                await JS.InvokeVoidAsync(
+                    "alert",
+                    "Không thể cập nhật trạng thái đơn COD."
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            await JS.InvokeVoidAsync(
+                "alert",
+                "Lỗi khi cập nhật đơn COD."
+            );
+        }
+    }
     private void GoBackToCart()
         {
             Navigation.NavigateTo("/cart");

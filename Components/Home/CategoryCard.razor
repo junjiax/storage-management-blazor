@@ -5,19 +5,13 @@
 <div class="border rounded-lg p-3 hover:shadow-sm transition bg-white flex flex-col items-center text-center cursor-pointer"
     @onclick="GoToDetail">
     <div class="h-16 w-16 mb-2 overflow-hidden rounded">
-        <img class="h-full w-full object-cover" src="@ImageUrl" alt="category icon" />
+        <img class="h-full w-full object-cover" src="@Img" alt="category icon" />
     </div>
     <div class="text-sm font-medium">@Item.CategoryName</div>
 </div>
 
 @code {
     [Parameter] public CategoryItemVm Item { get; set; } = new(0, "");
-    [Parameter] public string ImageUrl { get; set; } = "/images/douong.jpg";
-
-
-    void GoToDetail()
-    {
-        Navigation.NavigateTo($"/category/{Item.CategoryId}");
-    }
+    [Parameter] public string? Img { get; set; }
 
 }
