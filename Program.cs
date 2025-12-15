@@ -29,7 +29,7 @@ builder.Services.AddScoped<SupplierApi>();
 builder.Services.AddScoped<UserApi>();
 builder.Services.AddScoped<OrderApi>();
 builder.Services.AddScoped<PaymentApi>();
-// builder.Services.AddScoped<ReportApi>();
+builder.Services.AddScoped<DashboardApi>();
 builder.Services.AddScoped<ApiClient>(sp =>
 {
     var backendBase = builder.Configuration["BackendBaseUrl"] ?? "http://localhost:5247/api/";

@@ -24,15 +24,15 @@
         else
         {
             <div class="bg-gray-50 rounded-xl p-4 mt-6 text-left space-y-1">
-                <p><span class="font-semibold">Mã đơn hàng:</span> @order.OrderId</p>
-                <p><span class="font-semibold">Tổng thanh toán:</span> @(order.TotalAmount.ToString("N0")) đ</p>
-                <p><span class="font-semibold">Mã giảm giá:</span> @order.PromoId</p>
+                <p><span class="font-semibold">Mã đơn hàng:</span> <strong class="text-emerald-700">@order.OrderId</strong></p>
+                <p><span class="font-semibold">Tổng thanh toán:</span><strong class="text-emerald-700"> @(order.TotalAmount.ToString("N0")) đ</strong></p>
+                <p><span class="font-semibold">Mã giảm giá:</span><strong class="text-emerald-700"> @(order.PromoId != null ? order.PromoId : " Không có giảm giá")</strong></p>
             </div>
         }
         <button 
-            class="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 rounded-lg transition"
+            class="mt-6 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg transition"
             @onclick="GoBackToCart">
-            ⬅ Quay về giỏ hàng
+            Quay về giỏ hàng
         </button>
 
     </div>
