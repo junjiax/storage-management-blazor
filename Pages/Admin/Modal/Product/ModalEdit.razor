@@ -27,6 +27,11 @@
                     <option value="@c.CategoryId">@c.CategoryName</option>
                 }
             </select>
+            <ValidationMessage For="@(() => EditProduct.CategoryId)" />
+        </div>
+
+        <div class="mb-3">
+            <ValidationMessage For="@(() => EditProduct.SupplierId)" />
         </div>
 
         <!-- Nhà cung cấp -->
@@ -47,6 +52,7 @@
             <label>Tên sản phẩm</label>
             <InputText class="w-full border rounded px-2 py-1"
                        @bind-Value="EditProduct.ProductName" />
+            <ValidationMessage For="@(() => EditProduct.ProductName)" />
         </div>
 
         <!-- Barcode -->
@@ -61,6 +67,7 @@
             <label>Giá</label>
             <InputNumber class="w-full border rounded px-2 py-1"
                          @bind-Value="EditProduct.Price" />
+            <ValidationMessage For="@(() => EditProduct.Price)" />
         </div>
 
         <!-- Đơn vị -->
@@ -151,7 +158,7 @@
         suppliers  = (await SupplierApi.GetAllAsync())?.Data ?? new();
     }
 
-    private void HandleFileUpload(InputFileChangeEventArgs e)
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
     {
         var file = e.File;
         if (file == null) return;
@@ -170,11 +177,32 @@
 
         uploadError = string.Empty;
         EditProduct.ImageFile = file;
+
+        // preview
+        try
+        {
+            using var stream = file.OpenReadStream(5 * 1024 * 1024);
+            using var ms = new System.IO.MemoryStream();
+            await stream.CopyToAsync(ms);
+            CurrentImageUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+        }
+        catch
+        {
+            // ignore
+        }
     }
 
     private async Task HandleValidSubmit()
     {
-        var res = await ProductApi.UpdateAsync(EditProduct, Id);
+        ApiResponse<ProductResponse>? res;
+        if (EditProduct.ImageFile != null)
+        {
+            res = await ProductApi.UpdateWithUploadAsync(EditProduct, Id);
+        }
+        else
+        {
+            res = await ProductApi.UpdateAsync(EditProduct, Id);
+        }
 
         if (res?.Success == true)
         {

@@ -36,14 +36,19 @@ namespace frontendblazor.Models;
 
 public class ProductWithUploadImgRequest
 {
+    [Required(ErrorMessage = "Vui lòng chọn danh mục.")]
     public int? CategoryId { get; set; }
 
+    [Required(ErrorMessage = "Vui lòng chọn nhà cung cấp.")]
     public int? SupplierId { get; set; }
 
+    [Required(ErrorMessage = "Vui lòng nhập tên sản phẩm.")]
+    [MinLength(2, ErrorMessage = "Tên sản phẩm quá ngắn.")]
     public string ProductName { get; set; } = string.Empty;
 
     public string? Barcode { get; set; }
 
+    [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0.")]
     public decimal Price { get; set; }
 
     public string Unit { get; set; } = "pcs";
