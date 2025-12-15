@@ -47,10 +47,15 @@
                         <td class="px-4 py-2">@item.CreatedAt</td>
                         <td class="px-4 py-2">
                             <button
-                                class="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
+                                class="text-white px-3 py-1 rounded-lg hover:bg-blue-600 flex items-center gap-1"
                                 @onclick="() => ViewOrders(item.CustomerId)">
                                 <i class="bi bi-receipt" style="font-size:30px; color:green"></i>
-                                Xem hóa đơn
+                            </button>
+                            <button class="px-3 py-1 border border-blue-500 text-blue-600 
+                                hover:bg-blue-800 hover:text-white 
+                                text-xs rounded-md transition"
+                                @onclick="() => Update(item.CustomerId)">
+                                Sửa
                             </button>
 
                         </td>
@@ -121,6 +126,12 @@
     void ViewOrders(int customerId)
     {
         Nav.NavigateTo($"/admin/orders?customerId={customerId}");
+    }
+
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/customers/update/{id}", true);
     }
 
     private async Task OnSearchChanged()
