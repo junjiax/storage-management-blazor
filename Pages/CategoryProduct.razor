@@ -112,7 +112,7 @@
 
         allItems = result?.Data?
         .Select(p => new ProductItemVm(
-        ProductId: p.ProductId,
+        ProductId: p.ProductId ?? 0,
         Name: p.ProductName,
         ImageUrl: p.ProductImg ?? "/images/product-default.jpg",
         Price: p.Price,
