@@ -13,6 +13,9 @@ public sealed class CategoryApi
 
     public Task<ApiResponse<List<CategoryResponse>>?> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<CategoryResponse>>>("category", ct);
+
+
+
 }
 
 

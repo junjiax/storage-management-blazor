@@ -16,4 +16,9 @@ public sealed class ProductApi
 
     public Task<ApiResponse<ProductResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<ProductResponse>>($"product/{id}", ct);
+
+    public Task<ApiResponse<List<ProductResponse>>?>
+   GetByCategoryAsync(int categoryId, CancellationToken ct = default)
+   => apiClient.GetAsync<ApiResponse<List<ProductResponse>>>(
+       $"product/category/{categoryId}", ct);
 }
