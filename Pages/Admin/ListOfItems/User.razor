@@ -1,0 +1,204 @@
+﻿@page "/admin/users"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject UserApi UserApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý người dùng</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition" @onclick="() => Add()">
+            + Thêm người dùng
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm người dùng..."
+               @bind="searchTerm"
+               class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+        <button @onclick="SearchUser"
+                class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
+            Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tên người dùng</th>
+                    <th class="px-4 py-3 text-left">Tên đăng nhập</th>
+                    <th class="px-4 py-3 text-left">Vai trò</th>
+                    <th class="px-4 py-3 text-left">Ngày tạo</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (PagedUsers != null && PagedUsers.Count > 0)
+                {
+                    @foreach (var item in PagedUsers)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.UserId</td>
+                            <td class="px-4 py-3 font-medium">@item.FullName</td>
+                            <td class="px-4 py-3 font-medium">@item.Username</td>
+                            <td class="px-4 py-3 font-medium">@item.Role</td>
+                            <td class="px-4 py-3 font-medium">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+                                <button class="px-3 py-1 border border-blue-500 text-blue-600 
+               hover:bg-blue-800 hover:text-white 
+               text-xs rounded-md transition" @onclick="() => Update(item.UserId)">
+                                    Sửa
+                                </button>
+                                <button class="px-3 py-1 border border-red-500 text-red-600 
+               hover:bg-red-500 hover:text-white 
+               text-xs rounded-md transition"
+                                        @onclick="() => ConfirmDelete(item.UserId)">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-6 text-gray-500">
+                            Không có người dùng nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center gap-2 mt-4">
+        <button @onclick="PrevPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == 1)">
+            &lt; Trước
+        </button>
+
+        @for(int i = 1; i <= totalPages; i++)
+        {
+            int j = i;
+            <button @onclick="(() => GoToPage(j))" 
+                class="px-3 py-1 rounded-md border 
+                                @(currentPage == i 
+                                    ? "bg-blue-500 text-blue-600 border-blue-900 shadow" 
+                                    : "bg-gray-200 text-gray-700 hover:bg-gray-300")">               
+                                     @i
+            </button>
+        }
+
+        <button @onclick="NextPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == totalPages)">
+            Tiếp &gt;
+        </button>
+    </div>
+</div>
+
+@code {
+    private List<UserResponse> Users = new List<UserResponse>();
+    private List<UserResponse> UsersFilter = new List<UserResponse>();
+
+    private string searchTerm = string.Empty;
+
+    // Phân trang
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)UsersFilter.Count / pageSize);
+    
+
+
+    private List<UserResponse> PagedUsers => 
+        UsersFilter.Skip((currentPage - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUser();
+    }
+
+    private async Task LoadUser()
+    {
+        var response = await UserApi.GetAllAsync();
+        if(response?.Data != null)
+        {
+            Users = response.Data;
+            UsersFilter = response.Data;
+        }
+    }
+
+    private void SearchUser()
+    {
+       if(Users == null) return;
+
+        UsersFilter = string.IsNullOrWhiteSpace(searchTerm) 
+        ? new List<UserResponse>(Users)
+        : Users
+            .Where(c => (c.FullName ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        (c.Username ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+
+        currentPage = 1; // reset về trang 1 khi tìm kiếm
+    }
+
+    private void GoToPage(int page)
+    {
+        Console.WriteLine(page);
+        currentPage = page;
+    }
+
+    private void NextPage()
+    {
+        if(currentPage < totalPages) currentPage++;
+    }
+
+    private void PrevPage()
+    {
+        if(currentPage > 1) currentPage--;
+    }
+
+    private void Add()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/users/add", true);
+    }
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/users/update/{id}", true);
+    }
+
+     private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa người dùng id = {id}?");
+        if (confirmed)
+        {
+            var response = await UserApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadUser(); // load lại danh sách
+                SearchUser();
+            }
+            else{
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
+    }
+}

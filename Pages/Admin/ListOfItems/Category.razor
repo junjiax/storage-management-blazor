@@ -1,0 +1,160 @@
+﻿@page "/admin/categories"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject CategoryApi CategoryApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý danh mục</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition" @onclick="Add">
+            + Thêm danh mục
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm theo tên danh mục..."
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            @bind="searchQuery" @oninput="OnSearchChanged" />
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tên danh mục</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (filteredCategories != null && filteredCategories.Count > 0)
+                {
+                    @foreach (var item in filteredCategories)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.CategoryId</td>
+                            <td class="px-4 py-3 font-medium">@item.CategoryName</td>
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+
+                                <button class="px-3 py-1 border border-blue-500 text-blue-600 
+               hover:bg-blue-800 hover:text-white 
+               text-xs rounded-md transition" @onclick="() => Update(item.CategoryId)">
+                                    Sửa
+                                </button>
+                                <button class="px-3 py-1 border border-red-500 text-red-600 
+               hover:bg-red-500 hover:text-white 
+               text-xs rounded-md transition"
+                                    @onclick="() => ConfirmDelete(item.CategoryId)">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-6 text-gray-500">
+                            Không có danh mục nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@code {
+    private List<CategoryResponse> categories = new List<CategoryResponse>();
+    private List<CategoryResponse> filteredCategories = new List<CategoryResponse>();
+    private string searchQuery = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        var CategoryApiReponse = await CategoryApi.GetAllAsync();
+
+        if (CategoryApiReponse != null && CategoryApiReponse.Data != null)
+        {
+            categories = CategoryApiReponse.Data;
+            filteredCategories = categories;
+            foreach (var item in filteredCategories)
+            {
+                Console.WriteLine($"Category: {item.CategoryName}");
+            }
+            Console.WriteLine($"categories loaded: {categories.Count}");
+        }
+        else
+        {
+            Console.WriteLine("No category found or error in loading.");
+        }
+    }
+
+    private void OnSearchChanged(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString()?.Trim().ToLower() ?? "";
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            filteredCategories = categories;
+            return;
+        }
+
+        filteredCategories = categories
+        .Where(cat =>
+        cat.CategoryId.ToString().Contains(searchQuery) ||
+        (!string.IsNullOrEmpty(cat.CategoryName) &&
+        cat.CategoryName.ToLower().Contains(searchQuery))
+        )
+        .ToList();
+    }
+
+    private void Add()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/categories/add", true);
+    }
+
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/categories/update/{id}", true);
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa danh mục id = {id}?");
+        if (confirmed)
+        {
+            var response = await CategoryApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadCategories(); // load lại danh sách
+                OnSearchChanged(new ChangeEventArgs { Value = searchQuery });
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
+    }
+}

@@ -1,0 +1,35 @@
+﻿@page "/payment-failed"
+
+<div class="flex justify-center mt-16">
+    <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md text-center">
+
+        <!-- Icon -->
+        <div class="flex justify-center mb-4">
+            <div class="w-20 h-20 flex items-center justify-center rounded-full bg-red-100 text-red-600 text-4xl">
+                ✖
+            </div>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Thanh toán thất bại</h2>
+
+        <p class="text-gray-600">
+            Giao dịch không thành công hoặc đã bị hủy.  
+            Vui lòng thử lại.
+        </p>
+
+        <button 
+            class="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl transition"
+            @onclick="GoBack">
+            Thử lại
+        </button>
+    </div>
+</div>
+
+@code {
+    [Inject] NavigationManager Navigation { get; set; }
+
+    void GoBack()
+    {
+        Navigation.NavigateTo("/checkout");
+    }
+}

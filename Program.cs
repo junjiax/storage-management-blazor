@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using frontendblazor;
 using frontendblazor.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.DependencyInjection;
+using frontendblazor;
+using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -11,12 +13,23 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // Default HttpClient for app resources
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-
-// API Dependency Injection
 builder.Services.AddAuthorizationCore();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<TokenStorage>();
 builder.Services.AddScoped<ApiAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<ApiAuthStateProvider>());
+builder.Services.AddScoped<AuthApi>();
+builder.Services.AddScoped<ProductApi>();
+builder.Services.AddScoped<InventoryApi>();
+builder.Services.AddScoped<CustomerApi>();
+builder.Services.AddScoped<CategoryApi>();
+builder.Services.AddScoped<PromotionApi>();
+builder.Services.AddScoped<SupplierApi>();
+builder.Services.AddScoped<UserApi>();
+builder.Services.AddScoped<OrderApi>();
+builder.Services.AddScoped<PaymentApi>();
+builder.Services.AddScoped<DashboardApi>();
 builder.Services.AddScoped<ApiClient>(sp =>
 {
     var backendBase = builder.Configuration["BackendBaseUrl"] ?? "http://localhost:5247/api/";
@@ -28,13 +41,5 @@ builder.Services.AddScoped<ApiClient>(sp =>
         sp.GetRequiredService<ApiAuthStateProvider>()
     );
 });
-builder.Services.AddScoped<AuthApi>();
-builder.Services.AddScoped<ProductApi>();
-builder.Services.AddScoped<InventoryApi>();
-builder.Services.AddScoped<CustomerApi>();
-builder.Services.AddScoped<CategoryApi>();
-builder.Services.AddScoped<PromotionApi>();
-builder.Services.AddScoped<SupplierApi>();
-builder.Services.AddScoped<OrderApi>();
 
 await builder.Build().RunAsync();

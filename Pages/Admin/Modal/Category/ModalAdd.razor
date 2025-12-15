@@ -1,0 +1,59 @@
+@page "/admin/categories/add"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject CategoryApi CategoryApi
+
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Thêm danh mục mới</h2>
+
+    <EditForm Model="NewCategory" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @* <ValidationSummary /> *@
+
+        <div>
+            <label>Tên danh mục</label>
+            <InputText @bind-Value="NewCategory.CategoryName" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewCategory.CategoryName)" class="text-red-600 text-sm mt-1" />
+
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Thêm danh mục</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500" @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    private CategoryRequest NewCategory = new CategoryRequest
+    {
+        CategoryName = "",
+    };
+
+    private void Cancel()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/categories", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await CategoryApi.AddAsync(NewCategory);
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Thêm danh mục thành công!");
+            // Thêm xong quay về danh sách
+            Nav.NavigateTo("/admin/categories", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Thêm danh mục thất bại!");
+        }
+    }
+}

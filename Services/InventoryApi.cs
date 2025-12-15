@@ -1,4 +1,5 @@
-﻿using frontendblazor.Models;
+﻿
+using frontendblazor.Models;
 
 namespace frontendblazor.Services;
 
@@ -12,20 +13,22 @@ public sealed class InventoryApi
     }
 
     public Task<ApiResponse<InventoryResponse>?> AddAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
+        => apiClient.PostAsync<InventoryRequest, ApiResponse<InventoryResponse>>("inventory", request, ct);
 
-    public Task<ApiResponse<InventoryResponse>?> UpdateAsync(InventoryRequest request, CancellationToken ct = default)
-        => apiClient.PutAsync<InventoryRequest, ApiResponse<InventoryResponse>>("auth/login", request, ct);
+    public Task<ApiResponse<InventoryResponse>?> UpdateAsync(InventoryRequest request, int Id, CancellationToken ct = default)
+        => apiClient.PutAsync<InventoryRequest, ApiResponse<InventoryResponse>>($"inventory/{Id}", request, ct);
 
     public Task<ApiResponse<List<InventoryResponse>>> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<InventoryResponse>>>("inventory", ct);
 
-    public Task<ApiResponse<InventoryResponse>?> GetByIdAsync(int id, CancellationToken ct = default)
-        => apiClient.GetByIdAsync<ApiResponse<InventoryResponse>>("Supplier", id, ct);
+    public Task<ApiResponse<InventoryResponse>?> GetByIdAsync(int Id, CancellationToken ct = default)
+        => apiClient.GetByIdAsync<ApiResponse<InventoryResponse>>("inventory", Id, ct);
 
-    public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
-        => apiClient.DeleteAsync<ApiResponse<bool>>("Supplier", id, ct);
+    public Task<ApiResponse<bool>?> DeleteAsync(int Id, CancellationToken ct = default)
+        => apiClient.DeleteAsync<ApiResponse<bool>>($"inventory/{Id}", Id, ct);
 
+    public Task<ApiResponse<List<InventoryLogDto>>> GetAllLogsAsync(int Id, CancellationToken ct = default)
+        => apiClient.GetByIdAsync<ApiResponse<List<InventoryLogDto>>>("inventory/product-log", Id, ct);
 }
 
 

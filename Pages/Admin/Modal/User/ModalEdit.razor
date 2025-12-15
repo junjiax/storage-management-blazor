@@ -1,0 +1,92 @@
+@page "/admin/users/update/{Id:int}"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject UserApi UserApi
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Cập nhật tài khoản</h2>
+
+    <EditForm Model="UpdateUser" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div>
+            <label>Tên người dùng</label>
+            <InputText @bind-Value="UpdateUser.FullName" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => UpdateUser.FullName)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div>
+            <label>Tên đăng nhập</label>
+            <InputText @bind-Value="userName" class="w-full border rounded px-2 py-1" disabled />
+        </div>
+
+        <div>
+            <label>Mật khẩu</label>
+            <InputText type="password" @bind-Value="UpdateUser.Password" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => UpdateUser.Password)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div>
+            <label>Vai trò</label>
+            <InputSelect @bind-Value="UpdateUser.Role" class="w-full border rounded px-2 py-1">
+                <option value="customer">Customer</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => UpdateUser.Role)" class="text-red-600 text-sm mt-1" />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cập nhật</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private UpdateUserRequest UpdateUser = new UpdateUserRequest
+    {
+        FullName = "",
+        Password = "",
+        Role = "customer"
+    };
+    private string userName;
+    protected override async Task OnInitializedAsync()
+    {
+        var userResponse = await UserApi.GetByIdAsync(Id);
+
+        if (userResponse != null && userResponse.Success && userResponse.Data != null)
+        {
+            userName = userResponse.Data.Username;
+            UpdateUser.FullName = userResponse.Data.FullName;
+            UpdateUser.Role = userResponse.Data.Role;
+            // Password để trống, người dùng có thể nhập mật khẩu mới nếu muốn
+            UpdateUser.Password = "";
+        }
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/admin/users", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await UserApi.UpdateAsync(UpdateUser, Id);
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật tài khoản thành công!");
+            Nav.NavigateTo("/admin/users", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật tài khoản thất bại!");
+        }
+    }
+}

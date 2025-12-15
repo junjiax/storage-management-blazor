@@ -1,0 +1,209 @@
+﻿@page "/admin/customers"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApi AuthApi
+@inject CustomerApi CustomerApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+
+<div class="p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <h2 class="text-3xl font-bold text-gray-800">Quản lý khách hàng</h2>
+
+        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition"
+            @onclick="() => Add()">
+            + Thêm khách hàng
+        </button>
+    </div>
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+        <input type="text" placeholder="Tìm kiếm khách hàng..." @bind="searchTerm"
+            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+
+        <button @onclick="SearchCustomer"
+            class="px-4 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg shadow border">
+            Tìm kiếm
+        </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto bg-white shadow-xl border rounded-xl mt-4">
+        <table class="min-w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr class="text-gray-700 uppercase text-sm">
+                    <th class="px-4 py-3 text-left">ID</th>
+                    <th class="px-4 py-3 text-left">Tên khách</th>
+                    <th class="px-4 py-3 text-left">Số điện thoại</th>
+                    <th class="px-4 py-3 text-left">Email</th>
+                    <th class="px-4 py-3 text-left">Địa chỉ</th>
+                    <th class="px-4 py-3 text-left">Ngày tạo</th>
+                    <th class="px-4 py-3 text-center w-32">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody class="text-gray-800 text-sm">
+                @if (PagedCustomers != null && PagedCustomers.Count > 0)
+                {
+                    @foreach (var item in PagedCustomers)
+                    {
+                        <tr class="border-b hover:bg-blue-50 transition">
+                            <td class="px-4 py-3">@item.CustomerId</td>
+                            <td class="px-4 py-3 font-medium">@item.Name</td>
+                            <td class="px-4 py-3 font-medium">@item.Phone</td>
+                            <td class="px-4 py-3 font-medium">@item.Email</td>
+                            <td class="px-4 py-3 font-medium">@item.Address</td>
+                            <td class="px-4 py-3 font-medium">@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 text-center flex justify-center gap-2">
+                                <button class="px-3 py-1 border border-blue-500 text-blue-600 
+               hover:bg-blue-800 hover:text-white 
+               text-xs rounded-md transition"
+                                    @onclick="() => Update(item.CustomerId)">
+                                    Sửa
+                                </button>
+                                <button class="px-3 py-1 border border-red-500 text-red-600 
+               hover:bg-red-500 hover:text-white 
+               text-xs rounded-md transition"
+                                    @onclick="() => ConfirmDelete(item.CustomerId)">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-6 text-gray-500">
+                            Không có khách hàng nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center gap-2 mt-4">
+        <button @onclick="PrevPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == 1)">
+            &lt; Trước
+        </button>
+
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            int j = i;
+            <button @onclick="(() => GoToPage(j))"
+                class="px-3 py-1 rounded-md border 
+                                                        @(currentPage == i
+                                                                                                                                                                       ? "bg-blue-500 text-blue-600 border-blue-900 shadow" 
+                                                                                                                                                                       : "bg-gray-200 text-gray-700 hover:bg-gray-300")">
+                @i
+            </button>
+        }
+
+        <button @onclick="NextPage" class="px-2 py-1 bg-gray-200 rounded" disabled="@(currentPage == totalPages)">
+            Tiếp &gt;
+        </button>
+    </div>
+</div>
+
+@code {
+    private List<CustomerResponse> customers = new List<CustomerResponse>();
+    private List<CustomerResponse> customersFilter = new List<CustomerResponse>();
+
+    private string searchTerm = string.Empty;
+
+    // Phân trang
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)customersFilter.Count / pageSize);
+
+
+
+    private List<CustomerResponse> PagedCustomers =>
+    customersFilter.Skip((currentPage - 1) * pageSize)
+    .Take(pageSize)
+    .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomer();
+    }
+
+    private async Task LoadCustomer()
+    {
+        var response = await CustomerApi.GetAllAsync();
+        if (response?.Data != null)
+        {
+            customers = response.Data;
+            customersFilter = response.Data;
+        }
+    }
+
+    private void SearchCustomer()
+    {
+        if (customers == null) return;
+
+        customersFilter = string.IsNullOrWhiteSpace(searchTerm)
+        ? new List<CustomerResponse>(customers)
+        : customers
+        .Where(c => (c.Name ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        (c.Email ?? "").Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+        (c.Phone ?? "").Contains(searchTerm))
+        .ToList();
+
+
+        currentPage = 1; // reset về trang 1 khi tìm kiếm
+    }
+
+    private void GoToPage(int page)
+    {
+        Console.WriteLine(page);
+        currentPage = page;
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages) currentPage++;
+    }
+
+    private void PrevPage()
+    {
+        if (currentPage > 1) currentPage--;
+    }
+
+    private void Add()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/customers/add", true);
+    }
+    private void Update(int id)
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo($"/admin/customers/update/{id}", true);
+    }
+
+    private async Task ConfirmDelete(int id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Bạn có chắc muốn xóa khách hàng id = {id}?");
+        if (confirmed)
+        {
+            var response = await CustomerApi.DeleteAsync(id);
+            if (response != null && response.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thành công!");
+                await LoadCustomer(); // load lại danh sách
+                SearchCustomer();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Xóa thất bại!");
+            }
+        }
+    }
+}

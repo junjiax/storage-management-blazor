@@ -1,28 +1,45 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
 
 namespace frontendblazor.Models;
 
-public sealed record InventoryRequest(
-    [property: JsonPropertyName("productId")] string ProductId,
-    [property: JsonPropertyName("quantity")] string Quantity
-);
-
-public sealed record InventoryResponse
+public sealed record InventoryRequest
 {
-    [JsonPropertyName("inventoryId")]
-    public int InventoryId { get; init; }
-
     [JsonPropertyName("productId")]
-    public int ProductId { get; init; }
-
-    [JsonPropertyName("productName")]
-    public string ProductName { get; init; }
+    public int ProductId { get; set; }
 
     [JsonPropertyName("quantity")]
-    public int Quantity { get; init; }
-
-    [JsonPropertyName("updatedAt")]
-    public DateTime UpdatedAt { get; init; }
+    public int Quantity { get; set; }
 }
 
+public class InventoryLogDto
+{
+    [JsonPropertyName("type")]
+    public string Type { get; set; }              // "nhập hàng" | "bán hàng"
 
+    [JsonPropertyName("date")]
+    public string Date { get; set; }              // dd/MM/yyyy
+
+    [JsonPropertyName("quantity")]
+    public int? Quantity { get; set; }          // "+num" hoặc "num"
+
+    [JsonPropertyName("orderId")]
+    public int? OrderId { get; set; }
+
+    [JsonPropertyName("quantitySold")]
+    public int? QuantitySold { get; set; }
+
+    [JsonPropertyName("stockRemaining")]
+    public int? StockRemaining { get; set; }
+}
+
+public sealed record InventoryResponse(
+    [property: JsonPropertyName("inventoryId")] int InventoryId,
+    [property: JsonPropertyName("productId")] int ProductId,
+    [property: JsonPropertyName("productName")] string ProductName,
+    [property: JsonPropertyName("quantity")] int Quantity,
+    [property: JsonPropertyName("updatedAt")] DateTime UpdatedAt,
+    [property: JsonPropertyName("productImg")] string? ProductImg,
+    [property: JsonPropertyName("productPublicId")] string? ProductPublicId
+);

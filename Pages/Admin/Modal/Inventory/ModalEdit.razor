@@ -1,0 +1,97 @@
+@page "/admin/inventories/update/{Id:int}"
+@using frontendblazor.Models
+@using frontendblazor.Services
+@inject IJSRuntime JS
+@inject ProductApi ProductApi
+@inject InventoryApi InventoryApi
+@inject NavigationManager Nav
+
+<div class="max-w-xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+    <h2 class="text-2xl font-bold mb-6">Sửa kho hàng</h2>
+
+    <EditForm Model="NewInventory" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        @* <ValidationSummary /> *@
+
+        <div>
+            <label>Mã sản phẩm</label>
+            <select @bind="NewInventory.ProductId" class="w-full border rounded px-2 py-1">
+                <option value="0" disabled selected>-- Chọn sản phẩm --</option>
+
+                @foreach (var product in products)
+                {
+                    <option value="@product.ProductId">@product.ProductId - @product.ProductName</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label>Số lượng nhập thêm</label>
+            <InputNumber @bind-Value="NewInventory.Quantity" class="w-full border rounded px-2 py-1" />
+            <ValidationMessage For="@(() => NewInventory.Quantity)" />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Cập nhật kho
+                hàng</button>
+            <button type="button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-500"
+                @onclick="Cancel">Hủy</button>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private List<ProductResponse> products = new();
+
+    private InventoryRequest NewInventory = new InventoryRequest
+    {
+        ProductId = 0,
+        Quantity = 0
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        var productData = await ProductApi.GetAllAsync();
+        if (productData != null)
+        {
+            products = productData.Data;
+        }
+
+        ApiResponse<InventoryResponse>? inventory = await InventoryApi.GetByIdAsync(Id);
+        
+        System.Console.WriteLine(inventory.Data);
+
+        if (inventory != null)
+        {
+            NewInventory = new InventoryRequest
+            {
+                ProductId = inventory.Data.ProductId,
+                Quantity = inventory.Data.Quantity
+            };
+        }
+    }
+
+    private void Cancel()
+    {
+        // reset form hoặc quay về danh sách
+        Nav.NavigateTo("/admin/inventories", true);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await InventoryApi.UpdateAsync(NewInventory, Id);
+
+        if (response != null && response.Success)
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật tồn kho thành công!");
+
+            // Sửa xong quay về danh sách
+            Nav.NavigateTo("/admin/inventories", true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Cập nhật tồn kho thất bại!");
+        }
+    }
+}
