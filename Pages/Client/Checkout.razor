@@ -541,10 +541,10 @@
 
             // Dùng JS để alert + redirect cùng lúc
             await JS.InvokeVoidAsync("eval", $@"
-alert('Bạn đã chọn thanh toán khi nhận hàng (COD). Vui lòng chuẩn bị tiền mặt khi nhận hàng.');
-window.location.href = '/payment-success?orderId={createdOrder.OrderId}';
-");
-        }
+                alert('Bạn đã chọn thanh toán khi nhận hàng (COD). Vui lòng chuẩn bị tiền mặt khi nhận hàng.');
+                window.location.href = '/payment-success?orderId={createdOrder.OrderId}';"
+            );
+         }
 
 
     }
