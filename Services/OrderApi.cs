@@ -15,6 +15,10 @@ public sealed class OrderApi
     public Task<ApiResponse<List<OrderResponse>>?> GetAllAsync(CancellationToken ct = default)
         => apiClient.GetAsync<ApiResponse<List<OrderResponse>>>("orders", ct);
 
+    public async Task<ApiResponse<OrderResponse>?> GetByIdAsync(int id)
+    {
+        return await apiClient.GetAsync<ApiResponse<OrderResponse>>($"orders/{id}");
+    }
 
     public Task<ApiResponse<OrderResponse>?> UpdateOrderStatusAndInventoryAsync(int id)
     {
