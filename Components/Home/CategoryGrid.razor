@@ -3,10 +3,12 @@
 <div class="reveal-on-scroll">
     <SectionHeader Title="@Title" ViewAllUrl="@ViewAllUrl" ActionText="@ActionText" />
     <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 items-center">
-        @foreach (var c in Items)
-        {
-            <CategoryCard Item="c" />
-        }
+         @for (int i = 0; i < Items.Count(); i++)
+            {
+                <CategoryCard 
+                   Item="@Items.ElementAt(i)" 
+    Img="@Imgs.ElementAtOrDefault(i)"  />
+            }
     </div>
 </div>
 
@@ -15,4 +17,6 @@
     [Parameter] public string? ViewAllUrl { get; set; } = "#";
     [Parameter] public string ActionText { get; set; } = "Xem tất cả";
     [Parameter] public IEnumerable<CategoryItemVm> Items { get; set; } = Array.Empty<CategoryItemVm>();
+    [Parameter] public IEnumerable<string> Imgs { get; set; } = new List<string> { "images/douong.jpg", "images/banhkeo.jpg", "images/giavi.jpg", "images/giadung.jpg", "images/mypham.png"};
+
 }
