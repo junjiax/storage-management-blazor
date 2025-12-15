@@ -7,12 +7,62 @@
 
 <h3 class="text-2xl font-semibold mb-3">Quản lý đơn hàng</h3>
 
-<div class="flex items-center gap-3">
+<div class="d-flex flex-wrap align-items-center mb-3 gap-3">
     <!-- Search -->
-    <div class="flex items-center gap-3">
-        <input type="text" placeholder="Tìm kiếm đơn hàng..."
-            class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+    <input type="text"
+           placeholder="Tìm theo khách hàng / người tạo..."
+           class="w-72 px-4 py-1 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 mr-8"
+           @bind="searchTerm" />
+
+    <!-- Filter Status -->
+    <select class="px-3 py-1 border rounded-lg"
+            @bind="selectedStatus">
+        <option value="">-- Tất cả trạng thái --</option>
+        <option value="paid">Đã thanh toán</option>
+        <option value="pending">Chờ thanh toán</option>
+    </select>
+
+    <!-- Sort -->
+    <select class="px-3 py-1 border rounded-lg"
+            @bind="sortOrder">
+        <option value="desc">Ngày mới nhất</option>
+        <option value="asc">Ngày cũ nhất</option>
+    </select>
+
+    <button class="px-3 py-1 bg-gray-200 border border-gray-300 rounded 
+                hover:bg-gray-300 hover:border-gray-400"
+            @onclick="SearchOrders">
+        Tìm kiếm
+    </button>
+
+
+</div>
+<div class="flex items-center gap-4 mb-4 p-3  ">
+
+    <!-- From date -->
+    <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">Từ</label>
+        <input type="date"
+               class="px-3 py-1 border rounded-lg"
+               @bind="fromDate" />
     </div>
+
+    <!-- To date -->
+    <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">Đến</label>
+        <input type="date"
+               class="px-3 py-1 border rounded-lg"
+               @bind="toDate" />
+    </div>
+
+    <!-- Clear date filter -->
+    <button class="px-3 py-1 bg-gray-200 border border-gray-300 rounded 
+               hover:bg-gray-300 hover:border-gray-400"
+        @onclick="ClearDateFilter">
+        Làm mới
+    </button>
+
+
 </div>
 
 
@@ -109,27 +159,58 @@
 </div>
 
 @code {
+    private int? customerId;
     private List<OrderResponse> orders = new List<OrderResponse>();
     private int currentPage = 1;
     private int pageSize = 10;
     private int totalPages => (int)Math.Ceiling((double)orders.Count / pageSize);
+
+    private string searchTerm = "";
+    private string selectedStatus = "";
+    private DateTime? fromDate;
+    private DateTime? toDate;
+    private string sortOrder = "desc";
+
 
     private IEnumerable<OrderResponse> PagedOrders =>
     orders.Skip((currentPage - 1) * pageSize).Take(pageSize);
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadOrders();
+        customerId = GetQueryInt("customerId");
+
+        if (customerId.HasValue)
+            await LoadOrdersByCustomer(customerId.Value);
+        else
+            await LoadAllOrders();
     }
 
-    private async Task LoadOrders()
+    private int? GetQueryInt(string key)
     {
-        var getOrdersResponse = await orderrApi.GetAllAsync();
+        var uri = new Uri(Nav.Uri);
+        var query = uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries);
 
-        if (getOrdersResponse != null && getOrdersResponse.Data != null)
+        foreach (var item in query)
         {
-            orders = getOrdersResponse.Data;
+            var kv = item.Split('=');
+            if (kv.Length == 2 && kv[0] == key && int.TryParse(kv[1], out var value))
+                return value;
         }
+        return null;
+    }
+
+    private async Task LoadOrdersByCustomer(int customerId)
+    {
+        var res = await orderrApi.GetByCustomerIdAsync(customerId);
+        if (res?.Success == true)
+            orders = res.Data!;
+    }
+
+    private async Task LoadAllOrders()
+    {
+        var res = await orderrApi.GetAllAsync();
+        if (res?.Success == true)
+            orders = res.Data!;
     }
 
     void NextPage()
@@ -148,5 +229,37 @@
     {
         Nav.NavigateTo($"/admin/order/{id}");
     }
+
+    private async Task SearchOrders()
+    {
+        currentPage = 1;
+
+        var res = await orderrApi.SearchAsync(
+            keyword: searchTerm,
+            status: selectedStatus,
+            fromDate: fromDate,
+            toDate: toDate,
+            sortOrder: sortOrder
+        );
+
+        if (res?.Success == true && res.Data != null)
+        {
+            orders = res.Data;
+        }
+    }
+
+    private async Task ClearDateFilter()
+    {
+        searchTerm = "";
+        selectedStatus = "";
+        fromDate = null;
+        toDate = null;
+        sortOrder = "desc";
+        currentPage = 1;
+
+        await LoadAllOrders();
+    }
+
+
 
 }
