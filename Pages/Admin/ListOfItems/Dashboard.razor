@@ -1,0 +1,218 @@
+﻿@page "/admin"
+@page "/admin/dashboard"
+@inject frontendblazor.Services.DashboardApi DashboardApi
+@inject IJSRuntime JS
+@using frontendblazor.Models;
+
+
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+<div class="min-h-screen bg-gray-50 p-6 space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-800">Dashboard tổng quan</h1>
+            <p class="text-sm text-gray-500">Báo cáo thống kê theo tháng</p>
+        </div>
+
+        <!-- Month filter -->
+        <div class="flex items-center gap-3">
+            <input type="month"
+                   value="@startMonth"
+                   @onchange="OnStartMonthChanged"
+                   class="border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+            <span class="text-gray-400">→</span>
+
+            <input type="month"
+                   value="@endMonth"
+                   @onchange="OnEndMonthChanged"
+                   class="border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+            <button @onclick="LoadReport"
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg">
+                Áp dụng
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+
+        <!-- Revenue -->
+        <div class="bg-white rounded-2xl shadow p-5">
+            <p class="text-sm text-gray-500">Tổng doanh thu</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">
+                @(report != null ? string.Format("{0:N0} ₫", report.TotalRevenue) : "--")
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Theo khoảng tháng đã chọn</p>
+        </div>
+
+        <!-- Orders -->
+        <div class="bg-white rounded-2xl shadow p-5">
+            <p class="text-sm text-gray-500">Tổng đơn hàng</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">
+                @(report?.TotalOrders ?? 0)
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Số đơn hoàn tất</p>
+        </div>
+
+        <!-- New Customers -->
+        <div class="bg-white rounded-2xl shadow p-5">
+            <p class="text-sm text-gray-500">Khách hàng mới</p>
+            <p class="text-2xl font-bold text-gray-800 mt-2">
+                @(report?.NewCustomers ?? 0)
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Khách đăng ký mới</p>
+        </div>
+
+        <!-- Growth Rate -->
+        <div class="bg-white rounded-2xl shadow p-5">
+            <p class="text-sm text-gray-500">Tăng trưởng</p>
+            <p class="text-2xl font-bold mt-2 @(report != null && report.GrowthRate >= 0 ? "text-green-600" : "text-red-600")">
+                @(report != null ? $"{report.GrowthRate:F2}%" : "--")
+            </p>
+            <p class="text-xs text-gray-400 mt-1">So với kỳ trước</p>
+        </div>
+
+    </div>
+    <!-- Charts -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+
+        <!-- Line chart: Revenue by month -->
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Doanh thu theo tháng</h2>
+            <canvas id="revenueLineChart" height="120"></canvas>
+        </div>
+
+
+        <!-- Column chart: Orders by month -->
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Đơn hàng theo tháng</h2>
+            <canvas id="ordersBarChart" height="120"></canvas>
+        </div>
+
+        
+    </div>
+    <div class="mt-6">
+    <div class="bg-white rounded-2xl shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">
+            Tỉ lệ theo danh mục sản phẩm
+        </h2>
+
+        <div class="flex justify-center">
+            <div class="w-[500px] h-[500px]">
+                <canvas id="categoryPieChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+@code {
+    private string? startMonth; // yyyy-MM
+    private string? endMonth;   // yyyy-MM
+
+    private SimpleReportResponse? report;
+    private ROByMothResponse? revenueChart;
+    private RatioPByCResponse? ratioChart;
+
+
+    
+    private void OnStartMonthChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        startMonth = value;
+
+        // Nếu Start > End → ép End = Start
+        if (!string.IsNullOrEmpty(startMonth) &&
+            !string.IsNullOrEmpty(endMonth) &&
+            string.Compare(startMonth, endMonth, StringComparison.Ordinal) > 0)
+        {
+            endMonth = startMonth;
+        }
+    }
+
+    private void OnEndMonthChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        endMonth = value;
+
+        // Nếu End < Start → ép Start = End
+        if (!string.IsNullOrEmpty(startMonth) &&
+            !string.IsNullOrEmpty(endMonth) &&
+            string.Compare(endMonth, startMonth, StringComparison.Ordinal) < 0)
+        {
+            startMonth = endMonth;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var now = DateTime.Now;
+        var year = now.Year;
+
+        // Tháng đầu & cuối năm hiện tại
+        startMonth = $"{year}-01";
+        endMonth   = $"{year}-{now.Month:00}";
+
+        await LoadReport();
+    }
+
+    private async Task LoadReport()
+    {
+        var request = new SimpleReportRequest
+        {
+            StartDate = startMonth,
+            EndDate   = endMonth
+        };
+
+        var response = await DashboardApi.GetSimpleReportAsync(request);
+        report = response?.Data;
+        
+        var response1 = await DashboardApi.GetROByMonthAsync(request);
+        revenueChart = response1?.Data;
+        
+        var response2 = await DashboardApi.GetRatioPByCAsync(request);
+        ratioChart = response2?.Data;
+
+        if (ratioChart?.Ratios != null && ratioChart.Ratios.Any())
+        {
+            var pieLabels = ratioChart.Ratios
+                .Select(x => x.Type)
+                .ToArray();
+
+            var pieValues = ratioChart.Ratios
+                .Select(x => (double)x.Value)
+                .ToArray();
+
+            await JS.InvokeVoidAsync(
+                "renderCategoryPieChart",
+                pieLabels,
+                pieValues
+            );
+        }    
+
+        if (revenueChart?.MonthlyRevenues == null)
+        return;
+
+
+        var labels = revenueChart.MonthlyRevenues.Select(x => $"{x.Month:00}/{revenueChart.Year}").ToArray();
+        var revenues = revenueChart.MonthlyRevenues.Select(x => (double)x.Revenue).ToArray();
+        var orders = revenueChart.MonthlyRevenues.Select(x => x.Orders).ToArray();
+
+
+        await JS.InvokeVoidAsync("renderRevenueLineChart", labels, revenues);
+        await JS.InvokeVoidAsync("renderOrdersBarChart", labels, orders);
+        
+        
+    }
+
+    
+}
