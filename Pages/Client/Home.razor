@@ -9,15 +9,22 @@
 
 <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 space-y-8">
     <HeroBanner ImageUrl="images/BannarBig.png" />
+    
+    <!-- Search Bar -->
+ 
+    
     <ServiceHighlights />
     <CategoryGrid Title="Danh mục phổ biến" Items="@categories" />
-    <ProductGrid Title="Sản phẩm phổ biến" Items="@popularProducts" PageSize="10" />
+    <ProductGrid Title="Sản phẩm phổ biến" Items="@filteredProducts" PageSize="10" />
     <Testimonials />
 </div>
 
 @code {
     private List<ProductItemVm> popularProducts = new();
     private List<CategoryItemVm> categories = new();
+    private string searchQuery = "";
+
+    private IEnumerable<ProductItemVm> filteredProducts => popularProducts.Where(p => string.IsNullOrEmpty(searchQuery) || p.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
 
     protected override async Task OnInitializedAsync()
     {

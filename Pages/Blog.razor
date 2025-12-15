@@ -1,0 +1,54 @@
+@page "/blog"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Blog - Ecobazar</PageTitle>
+
+<div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-slate-900 mb-4">Blog</h1>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+            Khám phá những bài viết mới nhất về sản phẩm organic, mẹo sống xanh và tin tức từ Ecobazar.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Blog Post 1 -->
+        <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <img src="/images/blog1.jpg" alt="Blog post 1" class="w-full h-48 object-cover" onerror="this.src='/images/placeholder.jpg'">
+            <div class="p-6">
+                <div class="text-sm text-emerald-600 mb-2">Organic Living</div>
+                <h3 class="text-xl font-semibold text-slate-900 mb-3">10 Lợi Ích Của Việc Ăn Organic</h3>
+                <p class="text-slate-600 mb-4">Khám phá tại sao việc chọn thực phẩm organic lại tốt cho sức khỏe và môi trường...</p>
+                <a href="#" class="text-emerald-600 font-medium hover:text-emerald-700">Đọc thêm →</a>
+            </div>
+        </article>
+
+        <!-- Blog Post 2 -->
+        <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <img src="/images/blog2.jpg" alt="Blog post 2" class="w-full h-48 object-cover" onerror="this.src='/images/placeholder.jpg'">
+            <div class="p-6">
+                <div class="text-sm text-emerald-600 mb-2">Tips & Tricks</div>
+                <h3 class="text-xl font-semibold text-slate-900 mb-3">Cách Bảo Quản Rau Củ Organic</h3>
+                <p class="text-slate-600 mb-4">Những mẹo đơn giản để giữ rau củ tươi ngon lâu hơn trong tủ lạnh...</p>
+                <a href="#" class="text-emerald-600 font-medium hover:text-emerald-700">Đọc thêm →</a>
+            </div>
+        </article>
+
+        <!-- Blog Post 3 -->
+        <article class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            <img src="/images/blog3.jpg" alt="Blog post 3" class="w-full h-48 object-cover" onerror="this.src='/images/placeholder.jpg'">
+            <div class="p-6">
+                <div class="text-sm text-emerald-600 mb-2">News</div>
+                <h3 class="text-xl font-semibold text-slate-900 mb-3">Ecobazar Mở Rộng Chi Nhánh Mới</h3>
+                <p class="text-slate-600 mb-4">Chúng tôi rất vui mừng thông báo về việc mở chi nhánh mới tại...</p>
+                <a href="#" class="text-emerald-600 font-medium hover:text-emerald-700">Đọc thêm →</a>
+            </div>
+        </article>
+    </div>
+
+    <div class="text-center mt-12">
+        <button class="bg-emerald-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-emerald-700 transition">
+            Xem Tất Cả Bài Viết
+        </button>
+    </div>
+</div>

@@ -1,11 +1,13 @@
 @namespace frontendblazor.Components.Home
 @using frontendblazor.Components.Home
-<div class="reveal-on-scroll">
+
+<div class="reveal-on-scroll max-w-7xl mx-auto text-center">
     <SectionHeader Title="@Title" ViewAllUrl="@ViewAllUrl" ActionText="@ActionText" />
-    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 items-center">
+
+    <div class="mt-4 grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 place-items-center">
         @foreach (var c in Items)
         {
-            <CategoryCard Item="c" />
+            <CategoryCard Item="c" ImageUrl="@GetImage(c.CategoryId)" />
         }
     </div>
 </div>
@@ -15,4 +17,14 @@
     [Parameter] public string? ViewAllUrl { get; set; } = "#";
     [Parameter] public string ActionText { get; set; } = "Xem tất cả";
     [Parameter] public IEnumerable<CategoryItemVm> Items { get; set; } = Array.Empty<CategoryItemVm>();
+
+    string GetImage(int id) => id switch
+    {
+        1 => "/images/douong.jpg",
+        2 => "/images/banhkeo.webp",
+        3 => "/images/giavi.jpg",
+        4 => "/images/gaidung.jpg",
+        _ => "/images/mypham.jpg"
+    };
+
 }

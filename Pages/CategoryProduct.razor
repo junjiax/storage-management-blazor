@@ -1,0 +1,127 @@
+@page "/category/{Id:int}"
+
+@inject frontendblazor.Services.ProductApi productApi
+@using frontendblazor.Models
+@using frontendblazor.Components.Home
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- Header -->
+    <h2 class="mb-6 text-xl font-semibold text-slate-900">
+        Sản phẩm theo danh mục
+    </h2>
+
+    <!-- Search Input -->
+    <div class="mb-6">
+        <input type="text" @bind="SearchTerm" @bind:event="oninput" 
+               placeholder="Tìm kiếm sản phẩm..." 
+               class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500" />
+    </div>
+
+    @if (allItems == null)
+    {
+        <!-- Loading -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            @for (int i = 0; i < PageSize; i++)
+            {
+                <div class="h-[260px] animate-pulse rounded-xl bg-slate-100"></div>
+            }
+        </div>
+    }
+    else if (!allItems.Any())
+    {
+        <!-- Empty -->
+        <div class="py-20 text-center text-slate-500">
+            Không có sản phẩm trong danh mục này
+        </div>
+    }
+    else
+    {
+        <!-- Product Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            @foreach (var p in PagedItems)
+            {
+                <ProductCard Item="p" />
+            }
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center items-center gap-2">
+            <button class="px-3 py-1 rounded border text-sm
+                                   @(CurrentPage == 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-slate-100")"
+                disabled="@(CurrentPage == 1)" @onclick="PrevPage">
+                ‹
+            </button>
+
+            @for (int i = 1; i <= TotalPages; i++)
+            {
+                <button class="h-8 w-8 rounded-full text-sm
+                                               @(i == CurrentPage
+                                                                                   ? "bg-slate-900 text-white"
+                                                                                   : "border hover:bg-slate-100")"
+            @onclick="() => GoToPage(i)">
+            @i
+        </button>
+                }
+
+            <button class="px-3 py-1 rounded border text-sm
+                                   @(CurrentPage == TotalPages ? "opacity-40 cursor-not-allowed" : "hover:bg-slate-100")"
+                disabled="@(CurrentPage == TotalPages)" @onclick="NextPage">
+                ›
+            </button>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    List<ProductItemVm>? allItems;
+    string searchTerm = "";
+    string SearchTerm 
+    { 
+        get => searchTerm; 
+        set 
+        { 
+            searchTerm = value; 
+            CurrentPage = 1; 
+        } 
+    }
+
+    const int PageSize = 10;
+    int CurrentPage = 1;
+
+    int TotalPages =>
+    FilteredItems == null ? 0 : (int)Math.Ceiling(FilteredItems.Count() / (double)PageSize);
+
+    IEnumerable<ProductItemVm> FilteredItems =>
+    allItems?.Where(p => string.IsNullOrEmpty(SearchTerm) || 
+                         p.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase)) ?? Enumerable.Empty<ProductItemVm>();
+
+    IEnumerable<ProductItemVm> PagedItems =>
+    FilteredItems
+    .Skip((CurrentPage - 1) * PageSize)
+    .Take(PageSize);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        CurrentPage = 1;
+
+        var result = await productApi.GetByCategoryAsync(Id);
+
+        allItems = result?.Data?
+        .Select(p => new ProductItemVm(
+        ProductId: p.ProductId,
+        Name: p.ProductName,
+        ImageUrl: p.ProductImg ?? "/images/product-default.jpg",
+        Price: p.Price,
+        Badge: p.Barcode
+        ))
+        .ToList() ?? new();
+    }
+
+    void GoToPage(int page) => CurrentPage = page;
+    void NextPage() => CurrentPage++;
+    void PrevPage() => CurrentPage--;
+}
