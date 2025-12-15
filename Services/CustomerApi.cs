@@ -25,4 +25,9 @@ public sealed class CustomerApi
 	
     public Task<ApiResponse<bool>?> DeleteAsync(int id, CancellationToken ct = default)
         => apiClient.DeleteAsync<ApiResponse<bool>>("customer", id, ct);
+
+    public Task<ApiResponse<List<CustomerResponse>>?> SearchByNameAsync(string name,CancellationToken ct = default)
+    => apiClient.GetAsync<ApiResponse<List<CustomerResponse>>>(
+        $"customer/search?name={Uri.EscapeDataString(name)}", ct);
+
 }

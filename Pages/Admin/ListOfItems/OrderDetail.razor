@@ -4,45 +4,85 @@
 @inject OrderApi orderApi
 @inject NavigationManager Nav
 
-<h2 class="text-2xl font-bold mb-4">Chi tiết đơn hàng #@id</h2>
+<h2 class="text-3xl font-bold mb-6 text-blue-700 drop-shadow">
+    Chi tiết đơn hàng #@id
+</h2>
 
 @if (order == null)
 {
-    <p>Đang tải dữ liệu...</p>
+    <div class="text-gray-600 text-lg">Đang tải dữ liệu...</div>
 }
 else
 {
-    <div class="bg-white p-5 shadow-lg rounded-xl mb-4">
-        <h3 class="text-xl font-semibold mb-2">Thông tin đơn hàng</h3>
-        <p><strong>Khách hàng:</strong> @order.CustomerName</p>
-        <p><strong>Nhân viên:</strong> @order.UserName</p>
-        <p><strong>Ngày đặt:</strong> @order.OrderDate</p>
-        <p><strong>Trạng thái:</strong> @order.Status</p>
-        <p><strong>Giảm giá:</strong> @order.DiscountAmount</p>
-        <p><strong>Tổng tiền:</strong> @order.TotalAmount</p>
+    <!-- Card: Thông tin đơn hàng -->
+    <div class="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-blue-500 mb-6">
+        <h3 class="text-2xl font-semibold mb-4 text-blue-600">Thông tin đơn hàng</h3>
+
+        <div class="space-y-2 text-gray-700">
+            <p><strong>Khách hàng:</strong> @order.CustomerName</p>
+            <p><strong>Nhân viên:</strong> @order.UserName</p>
+            <p><strong>Ngày đặt:</strong> @order.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+
+            <p>
+                <strong>Trạng thái:</strong>
+                @if (@order.Status == "paid")
+                {
+                        <span style="
+                                background:#d1fae5; 
+                                color:#065f46; 
+                                padding:4px 10px; 
+                                border-radius:8px; 
+                                font-weight:bold;
+                                font-size:14px;">
+                            Đã thanh toán
+                        </span>
+                }
+                else
+                {
+                        <span style="
+                                background:#fef3c7; 
+                                color:#92400e; 
+                                padding:4px 10px; 
+                                border-radius:8px; 
+                                font-weight:bold;
+                                font-size:14px;">
+                            Chờ thanh toán
+                        </span>
+                }
+
+            </p>
+
+            <p><strong>Giảm giá:</strong> @order.DiscountAmount.ToString("N0") đ</p>
+            <p><strong>Tổng tiền:</strong> 
+                <span style="color: #c71515; font-weight: bold; font-size: 1.125rem;">
+                    @order.TotalAmount.ToString("N0") đ
+                </span>
+            </p>
+        </div>
     </div>
 
-    <div class="bg-white p-5 shadow-lg rounded-xl">
-        <h3 class="text-xl font-semibold mb-3">Sản phẩm trong đơn</h3>
+    <!-- Card: Danh sách sản phẩm -->
+    <div class="bg-white p-6 rounded-2xl shadow-xl border-l-4 border-purple-500">
+        <h3 class="text-2xl font-semibold mb-4 text-purple-600">Sản phẩm trong đơn</h3>
 
-        <table class="min-w-full border-collapse">
-            <thead class="bg-gray-100 border-b">
+        <table class="min-w-full border-collapse rounded-xl overflow-hidden shadow-md">
+            <thead class="bg-purple-100 border-b-2 border-purple-300">
                 <tr>
-                    <th class="px-4 py-2 text-left">Tên SP</th>
-                    <th class="px-4 py-2 text-left">Số lượng</th>
-                    <th class="px-4 py-2 text-left">Giá</th>
-                    <th class="px-4 py-2 text-left">Tổng</th>
+                    <th class="px-4 py-3 text-left text-purple-700">Tên SP</th>
+                    <th class="px-4 py-3 text-left text-purple-700">Số lượng</th>
+                    <th class="px-4 py-3 text-left text-purple-700">Giá</th>
+                    <th class="px-4 py-3 text-left text-purple-700">Tổng</th>
                 </tr>
             </thead>
 
             <tbody>
                 @foreach (var i in order.Items)
                 {
-                    <tr class="border-b">
-                        <td class="px-4 py-2">@i.ProductName</td>
-                        <td class="px-4 py-2">@i.Quantity</td>
-                        <td class="px-4 py-2">@i.Price</td>
-                        <td class="px-4 py-2">@i.Subtotal</td>
+                    <tr class="border-b hover:bg-purple-50 transition">
+                        <td class="px-4 py-3">@i.ProductName</td>
+                        <td class="px-4 py-3">@i.Quantity</td>
+                        <td class="px-4 py-3">@i.Price.ToString("N0") đ</td>
+                        <td class="px-4 py-3 font-semibold">@i.Subtotal.ToString("N0") đ</td>
                     </tr>
                 }
             </tbody>

@@ -535,6 +535,12 @@
 
         else
         {
+            var exportResult = await orderApi.ExportOrderToPdfAndSendToEmailAsync(createdOrder.OrderId);
+
+            if (exportResult == null || !exportResult.Success)
+            {
+                await JS.InvokeVoidAsync("alert", "Không thể gửi hóa đơn qua email.");
+            }
             // Clear cart trước
             await CartService.ClearCart();
             StateHasChanged();
